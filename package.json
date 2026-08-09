@@ -1,0 +1,47 @@
+{
+  "name": "tally",
+  "version": "0.1.0",
+  "description": "单机版桌面财务工具 - 注重数据隐私与本地加密存储",
+  "main": "out/main/index.js",
+  "author": "tally",
+  "license": "MIT",
+  "type": "module",
+  "scripts": {
+    "dev": "electron-vite dev",
+    "build": "electron-vite build",
+    "start": "electron-vite preview",
+    "typecheck:node": "tsc --noEmit -p tsconfig.node.json",
+    "typecheck:web": "vue-tsc --noEmit -p tsconfig.web.json",
+    "typecheck": "npm run typecheck:node && npm run typecheck:web",
+    "test": "vitest run",
+    "test:watch": "vitest",
+    "build:win": "electron-vite build && electron-builder --win",
+    "build:mac": "electron-vite build && electron-builder --mac",
+    "build:linux": "electron-vite build && electron-builder --linux"
+  },
+  "dependencies": {
+    "@element-plus/icons-vue": "^2.3.1",
+    "better-sqlite3-multiple-ciphers": "^13.0.3",
+    "echarts": "^5.5.1",
+    "element-plus": "^2.7.8",
+    "pinia": "^2.2.4",
+    "vue": "^3.5.41",
+    "vue-router": "^4.4.5"
+  },
+  "devDependencies": {
+    "@electron-toolkit/preload": "^3.0.1",
+    "@electron-toolkit/utils": "^3.0.0",
+    "@types/better-sqlite3": "^7.6.11",
+    "@types/node": "^22.5.0",
+    "@vitejs/plugin-vue": "^5.1.2",
+    "@vue/test-utils": "^2.4.6",
+    "electron": "^43.3.0",
+    "electron-builder": "^24.13.3",
+    "electron-vite": "^5.0.0",
+    "jsdom": "^25.0.0",
+    "typescript": "^5.6.2",
+    "vite": "^5.4.5",
+    "vitest": "^2.1.1",
+    "vue-tsc": "^2.1.6"
+  }
+}

@@ -1,0 +1,64 @@
+import type Database from 'better-sqlite3-multiple-ciphers'
+import { AccountRepository } from './repositories/account.repository'
+import { CategoryRepository } from './repositories/category.repository'
+import { TagRepository } from './repositories/tag.repository'
+import { TransactionRepository } from './repositories/transaction.repository'
+import { AssetRepository } from './repositories/asset.repository'
+import { AnalyticsRepository } from './repositories/analytics.repository'
+
+export class StorageService {
+  private _account?: AccountRepository
+  private _category?: CategoryRepository
+  private _tag?: TagRepository
+  private _transaction?: TransactionRepository
+  private _asset?: AssetRepository
+  private _analytics?: AnalyticsRepository
+
+  constructor(private db: Database.Database) {}
+
+  get account(): AccountRepository {
+    if (!this._account) {
+      this._account = new AccountRepository(this.db)
+    }
+    return this._account
+  }
+
+  get category(): CategoryRepository {
+    if (!this._category) {
+      this._category = new CategoryRepository(this.db)
+    }
+    return this._category
+  }
+
+  get tag(): TagRepository {
+    if (!this._tag) {
+      this._tag = new TagRepository(this.db)
+    }
+    return this._tag
+  }
+
+  get transaction(): TransactionRepository {
+    if (!this._transaction) {
+      this._transaction = new TransactionRepository(this.db, this.tag)
+    }
+    return this._transaction
+  }
+
+  get asset(): AssetRepository {
+    if (!this._asset) {
+      this._asset = new AssetRepository(this.db)
+    }
+    return this._asset
+  }
+
+  get analytics(): AnalyticsRepository {
+    if (!this._analytics) {
+      this._analytics = new AnalyticsRepository(this.db, this.tag)
+    }
+    return this._analytics
+  }
+
+  raw(): Database.Database {
+    return this.db
+  }
+}
