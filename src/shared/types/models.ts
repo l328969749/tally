@@ -129,6 +129,12 @@ export interface CategoryExpenseItem {
   amount: number
 }
 
+export interface TagExpenseItem {
+  tagId: number
+  tagName: string
+  amount: number
+}
+
 export interface MonthlyTrendItem {
   month: string
   income: number

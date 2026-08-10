@@ -20,6 +20,7 @@ import type {
   TransactionListResult,
   TransactionWithMeta,
   CategoryExpenseItem,
+  TagExpenseItem,
   AccountBalanceItem
 } from '../shared/types/models'
 import type {
@@ -137,6 +138,8 @@ const api = {
     overview: (): Promise<OverviewData> => ipcRenderer.invoke(IpcChannels.analytics.overview),
     expenseByCategory: (startDate: string, endDate: string): Promise<CategoryExpenseItem[]> =>
       ipcRenderer.invoke(IpcChannels.analytics.expenseByCategory, startDate, endDate),
+    expenseByTag: (startDate: string, endDate: string): Promise<TagExpenseItem[]> =>
+      ipcRenderer.invoke(IpcChannels.analytics.expenseByTag, startDate, endDate),
     monthlyTrend: (startDate: string, endDate: string): Promise<MonthlyTrendItem[]> =>
       ipcRenderer.invoke(IpcChannels.analytics.monthlyTrend, startDate, endDate),
     netWorth: (): Promise<NetWorthPoint[]> => ipcRenderer.invoke(IpcChannels.analytics.netWorth),

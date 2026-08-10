@@ -25,6 +25,17 @@ export function registerAnalyticsHandlers(ledgerManager: LedgerManager): void {
   )
 
   ipcMain.handle(
+    IpcChannels.analytics.expenseByTag,
+    (_event: IpcMainInvokeEvent, startDate: string, endDate: string) => {
+      try {
+        return storage().analytics.expenseByTag(startDate, endDate)
+      } catch (error) {
+        return { error: getErrorMessage(error) }
+      }
+    }
+  )
+
+  ipcMain.handle(
     IpcChannels.analytics.monthlyTrend,
     (_event: IpcMainInvokeEvent, startDate: string, endDate: string) => {
       try {

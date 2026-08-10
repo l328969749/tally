@@ -51,6 +51,7 @@ export const IpcChannels = {
   analytics: {
     overview: 'analytics:overview',
     expenseByCategory: 'analytics:expenseByCategory',
+    expenseByTag: 'analytics:expenseByTag',
     monthlyTrend: 'analytics:monthlyTrend',
     netWorth: 'analytics:netWorth',
     accountBalance: 'analytics:accountBalance'

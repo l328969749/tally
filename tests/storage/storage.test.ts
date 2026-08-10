@@ -303,6 +303,44 @@ describe('AnalyticsRepository', () => {
     expect(result[0].categoryId).toBe(trafficCat)
   })
 
+  it('需求9.5: 标签支出聚合按金额降序，仅统计支出', () => {
+    const accountId = seedAccount(ctx.storage)
+    const expenseCat = seedCategory(ctx.storage, 'expense')
+    const incomeCat = seedCategory(ctx.storage, 'income')
+    const travelTag = ctx.storage.tag.create('旅行').id
+    const foodTag = ctx.storage.tag.create('餐饮').id
+
+    ctx.storage.transaction.create({
+      type: 'expense',
+      amount: 200,
+      categoryId: expenseCat,
+      accountId,
+      date: '2026-04-01',
+      tagIds: [travelTag, foodTag]
+    })
+    ctx.storage.transaction.create({
+      type: 'expense',
+      amount: 600,
+      categoryId: expenseCat,
+      accountId,
+      date: '2026-04-02',
+      tagIds: [travelTag]
+    })
+    ctx.storage.transaction.create({
+      type: 'income',
+      amount: 900,
+      categoryId: incomeCat,
+      accountId,
+      date: '2026-04-03',
+      tagIds: [travelTag]
+    })
+
+    const result = ctx.storage.analytics.expenseByTag('2026-04-01', '2026-04-30')
+    expect(result).toHaveLength(2)
+    expect(result[0]).toMatchObject({ tagId: travelTag, tagName: '旅行', amount: 800 })
+    expect(result[1]).toMatchObject({ tagId: foodTag, tagName: '餐饮', amount: 200 })
+  })
+
   it('月度收支趋势聚合', () => {
     const accountId = seedAccount(ctx.storage)
     const incomeCat = seedCategory(ctx.storage, 'income')

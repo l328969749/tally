@@ -5,11 +5,13 @@ import { ElMessage } from 'element-plus'
 import type {
   CategoryExpenseItem,
   MonthlyTrendItem,
-  NetWorthPoint
+  NetWorthPoint,
+  TagExpenseItem
 } from '@shared/types/models'
 import { yearStart, monthLabel, monthStart, monthEnd } from '@renderer/utils/date'
 
 const expenseByCategory = ref<CategoryExpenseItem[]>([])
+const expenseByTag = ref<TagExpenseItem[]>([])
 const monthlyTrend = ref<MonthlyTrendItem[]>([])
 const netWorthPoints = ref<NetWorthPoint[]>([])
 const loading = ref(true)
@@ -20,14 +22,17 @@ const dateRange = reactive({
 })
 
 let pieChart: echarts.ECharts | null = null
+let tagChart: echarts.ECharts | null = null
 let trendChart: echarts.ECharts | null = null
 let netWorthChart: echarts.ECharts | null = null
 let pieEl: HTMLElement | null = null
+let tagEl: HTMLElement | null = null
 let trendEl: HTMLElement | null = null
 let netWorthEl: HTMLElement | null = null
 
 onMounted(async () => {
   pieEl = document.getElementById('pie-chart')
+  tagEl = document.getElementById('tag-chart')
   trendEl = document.getElementById('trend-chart')
   netWorthEl = document.getElementById('networth-chart')
   await loadData()
@@ -37,6 +42,7 @@ onMounted(async () => {
 onBeforeUnmount(() => {
   window.removeEventListener('resize', resizeCharts)
   pieChart?.dispose()
+  tagChart?.dispose()
   trendChart?.dispose()
   netWorthChart?.dispose()
 })
@@ -44,12 +50,14 @@ onBeforeUnmount(() => {
 async function loadData(): Promise<void> {
   loading.value = true
   try {
-    const [category, trend, netWorth] = await Promise.all([
+    const [category, tag, trend, netWorth] = await Promise.all([
       window.api.analytics.expenseByCategory(dateRange.startDate, dateRange.endDate),
+      window.api.analytics.expenseByTag(dateRange.startDate, dateRange.endDate),
       window.api.analytics.monthlyTrend(dateRange.startDate, dateRange.endDate),
       window.api.analytics.netWorth()
     ])
     expenseByCategory.value = category
+    expenseByTag.value = tag
     monthlyTrend.value = trend
     netWorthPoints.value = netWorth
     await renderCharts()
@@ -60,12 +68,14 @@ async function loadData(): Promise<void> {
 
 function resizeCharts(): void {
   pieChart?.resize()
+  tagChart?.resize()
   trendChart?.resize()
   netWorthChart?.resize()
 }
 
 function renderCharts(): void {
   renderPieChart()
+  renderTagChart()
   renderTrendChart()
   renderNetWorthChart()
 }
@@ -93,6 +103,33 @@ function renderPieChart(): void {
         itemStyle: { borderRadius: 6, borderColor: '#fff', borderWidth: 2 },
         label: { formatter: '{b}\n{d}%' },
         data
+      }
+    ]
+  })
+}
+
+function renderTagChart(): void {
+  if (!tagEl) {
+    return
+  }
+  tagChart?.dispose()
+  tagChart = echarts.init(tagEl)
+  tagChart.setOption({
+    tooltip: { trigger: 'axis' },
+    grid: { left: 80, right: 30, top: 20, bottom: 30 },
+    xAxis: { type: 'value' },
+    yAxis: {
+      type: 'category',
+      data: expenseByTag.value.map((item) => item.tagName),
+      inverse: true
+    },
+    series: [
+      {
+        name: '支出',
+        type: 'bar',
+        data: expenseByTag.value.map((item) => item.amount),
+        itemStyle: { color: '#f56c6c' },
+        label: { show: true, position: 'right', formatter: '¥{c}' }
       }
     ]
   })
@@ -176,6 +213,14 @@ async function exportPie(): Promise<void> {
   await exportImage(url, '支出分类.png')
 }
 
+async function exportTag(): Promise<void> {
+  if (!tagChart) {
+    return
+  }
+  const url = tagChart.getDataURL({ type: 'png', pixelRatio: 2 })
+  await exportImage(url, '标签支出.png')
+}
+
 async function exportTrend(): Promise<void> {
   if (!trendChart) {
     return
@@ -239,6 +284,15 @@ function exportImage(dataUrl: string, filename: string): void {
         </div>
         <div id="trend-chart" class="chart"></div>
         <div v-if="monthlyTrend.length === 0" class="empty-chart">暂无收支数据</div>
+      </div>
+
+      <div class="chart-card">
+        <div class="chart-header">
+          <h3>标签支出排行</h3>
+          <el-button link type="primary" size="small" @click="exportTag">导出图片</el-button>
+        </div>
+        <div id="tag-chart" class="chart"></div>
+        <div v-if="expenseByTag.length === 0" class="empty-chart">暂无标签支出数据</div>
       </div>
 
       <div class="chart-card full">

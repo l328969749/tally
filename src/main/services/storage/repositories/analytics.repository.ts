@@ -5,6 +5,7 @@ import type {
   MonthlyTrendItem,
   NetWorthPoint,
   OverviewData,
+  TagExpenseItem,
   TransactionWithMeta
 } from '@shared/types/models'
 import type { TagRepository } from './tag.repository'
@@ -90,6 +91,20 @@ export class AnalyticsRepository {
          ORDER BY amount DESC`
       )
       .all(startDate, endDate) as unknown as CategoryExpenseItem[]
+  }
+
+  expenseByTag(startDate: string, endDate: string): TagExpenseItem[] {
+    return this.db
+      .prepare(
+        `SELECT tt.tag_id AS tagId, t2.name AS tagName, SUM(t.amount) AS amount
+         FROM transaction_tag tt
+         INNER JOIN "transaction" t ON t.id = tt.transaction_id
+         INNER JOIN tag t2 ON t2.id = tt.tag_id
+         WHERE t.type = 'expense' AND t.date >= ? AND t.date <= ?
+         GROUP BY tt.tag_id, t2.name
+         ORDER BY amount DESC`
+      )
+      .all(startDate, endDate) as unknown as TagExpenseItem[]
   }
 
   monthlyTrend(startDate: string, endDate: string): MonthlyTrendItem[] {
