@@ -3,6 +3,7 @@ import { computed, onMounted, onBeforeUnmount, reactive, ref } from 'vue'
 import * as echarts from 'echarts'
 import { ElMessage } from 'element-plus'
 import type {
+  AccountBalanceItem,
   CategoryExpenseItem,
   MonthlyTrendItem,
   NetWorthPoint,
@@ -14,6 +15,7 @@ const expenseByCategory = ref<CategoryExpenseItem[]>([])
 const expenseByTag = ref<TagExpenseItem[]>([])
 const monthlyTrend = ref<MonthlyTrendItem[]>([])
 const netWorthPoints = ref<NetWorthPoint[]>([])
+const accountBalances = ref<AccountBalanceItem[]>([])
 const loading = ref(true)
 
 const dateRange = reactive({
@@ -25,16 +27,19 @@ let pieChart: echarts.ECharts | null = null
 let tagChart: echarts.ECharts | null = null
 let trendChart: echarts.ECharts | null = null
 let netWorthChart: echarts.ECharts | null = null
+let balanceChart: echarts.ECharts | null = null
 let pieEl: HTMLElement | null = null
 let tagEl: HTMLElement | null = null
 let trendEl: HTMLElement | null = null
 let netWorthEl: HTMLElement | null = null
+let balanceEl: HTMLElement | null = null
 
 onMounted(async () => {
   pieEl = document.getElementById('pie-chart')
   tagEl = document.getElementById('tag-chart')
   trendEl = document.getElementById('trend-chart')
   netWorthEl = document.getElementById('networth-chart')
+  balanceEl = document.getElementById('balance-chart')
   await loadData()
   window.addEventListener('resize', resizeCharts)
 })
@@ -45,21 +50,24 @@ onBeforeUnmount(() => {
   tagChart?.dispose()
   trendChart?.dispose()
   netWorthChart?.dispose()
+  balanceChart?.dispose()
 })
 
 async function loadData(): Promise<void> {
   loading.value = true
   try {
-    const [category, tag, trend, netWorth] = await Promise.all([
+    const [category, tag, trend, netWorth, balance] = await Promise.all([
       window.api.analytics.expenseByCategory(dateRange.startDate, dateRange.endDate),
       window.api.analytics.expenseByTag(dateRange.startDate, dateRange.endDate),
       window.api.analytics.monthlyTrend(dateRange.startDate, dateRange.endDate),
-      window.api.analytics.netWorth()
+      window.api.analytics.netWorth(),
+      window.api.analytics.accountBalance()
     ])
     expenseByCategory.value = category
     expenseByTag.value = tag
     monthlyTrend.value = trend
     netWorthPoints.value = netWorth
+    accountBalances.value = balance
     await renderCharts()
   } finally {
     loading.value = false
@@ -71,6 +79,7 @@ function resizeCharts(): void {
   tagChart?.resize()
   trendChart?.resize()
   netWorthChart?.resize()
+  balanceChart?.resize()
 }
 
 function renderCharts(): void {
@@ -78,6 +87,7 @@ function renderCharts(): void {
   renderTagChart()
   renderTrendChart()
   renderNetWorthChart()
+  renderBalanceChart()
 }
 
 function renderPieChart(): void {
@@ -194,6 +204,41 @@ function renderNetWorthChart(): void {
   })
 }
 
+function renderBalanceChart(): void {
+  if (!balanceEl) {
+    return
+  }
+  balanceChart?.dispose()
+  balanceChart = echarts.init(balanceEl)
+  balanceChart.setOption({
+    tooltip: { trigger: 'axis', formatter: '{b}: ¥{c}' },
+    grid: { left: 80, right: 40, top: 20, bottom: 30 },
+    xAxis: { type: 'value' },
+    yAxis: {
+      type: 'category',
+      data: accountBalances.value.map((item) => item.accountName),
+      inverse: true
+    },
+    series: [
+      {
+        name: '账户余额',
+        type: 'bar',
+        data: accountBalances.value.map((item) => item.balance),
+        itemStyle: { color: '#2e6df6' },
+        label: { show: true, position: 'right', formatter: '¥{c}' }
+      }
+    ]
+  })
+}
+
+async function exportBalance(): Promise<void> {
+  if (!balanceChart) {
+    return
+  }
+  const url = balanceChart.getDataURL({ type: 'png', pixelRatio: 2 })
+  await exportImage(url, '账户余额分布.png')
+}
+
 const summaryByMonth = computed(() => {
   const result: Record<string, { income: number; expense: number }> = {}
   monthlyTrend.value.forEach((item) => {
@@ -302,6 +347,15 @@ function exportImage(dataUrl: string, filename: string): void {
         </div>
         <div id="networth-chart" class="chart tall"></div>
         <div v-if="netWorthPoints.length === 0" class="empty-chart">暂无数据</div>
+      </div>
+
+      <div class="chart-card">
+        <div class="chart-header">
+          <h3>账户余额分布</h3>
+          <el-button link type="primary" size="small" @click="exportBalance">导出图片</el-button>
+        </div>
+        <div id="balance-chart" class="chart"></div>
+        <div v-if="accountBalances.length === 0" class="empty-chart">暂无账户</div>
       </div>
 
       <div class="chart-card full">
