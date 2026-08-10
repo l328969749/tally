@@ -31,7 +31,7 @@ const form = reactive({
   accountId: null as number | null,
   date: today(),
   note: '',
-  tagIds: [] as number[]
+  tagIds: [] as Array<number | string>
 })
 
 const visibleModel = computed({
@@ -39,9 +39,14 @@ const visibleModel = computed({
   set: (value: boolean) => emit('update:visible', value)
 })
 
-const filteredCategories = computed(() =>
-  categoryStore.categories.filter((c) => c.type === form.type && c.parentId === null)
-)
+const filteredCategories = computed(() => {
+  const roots = categoryStore.categories.filter((c) => c.type === form.type && c.parentId === null)
+  return roots.map((root) => ({
+    id: root.id,
+    name: root.name,
+    children: categoryStore.categories.filter((c) => c.type === form.type && c.parentId === root.id)
+  }))
+})
 
 const amountDisplay = computed({
   get: () => (form.amount === null ? '' : String(form.amount)),
@@ -96,6 +101,35 @@ watch(
   }
 )
 
+watch(
+  () => [...form.tagIds],
+  async (value) => {
+    for (const item of value) {
+      if (typeof item === 'string') {
+        await ensureTag(item)
+      }
+    }
+  }
+)
+
+async function ensureTag(name: string): Promise<void> {
+  const trimmed = name.trim()
+  if (!trimmed) {
+    return
+  }
+  let tag = tagStore.tags.find((t) => t.name === trimmed)
+  if (!tag) {
+    await tagStore.create(trimmed)
+    tag = tagStore.tags.find((t) => t.name === trimmed)
+  }
+  if (tag) {
+    const index = form.tagIds.findIndex((value) => value === name)
+    if (index !== -1) {
+      form.tagIds[index] = tag.id
+    }
+  }
+}
+
 async function save(): Promise<void> {
   if (form.amount === null || form.amount <= 0) {
     ElMessage.warning('请输入正确的金额')
@@ -116,7 +150,7 @@ async function save(): Promise<void> {
     accountId: form.accountId,
     date: form.date,
     note: form.note || null,
-    tagIds: form.tagIds
+    tagIds: form.tagIds.filter((item): item is number => typeof item === 'number')
   }
   saving.value = true
   try {
@@ -174,12 +208,19 @@ async function save(): Promise<void> {
           style="width: 100%"
           filterable
         >
-          <el-option
-            v-for="category in filteredCategories"
-            :key="category.id"
-            :label="category.name"
-            :value="category.id"
-          />
+          <el-option-group
+            v-for="group in filteredCategories"
+            :key="group.id"
+            :label="group.name"
+          >
+            <el-option :label="group.name" :value="group.id" />
+            <el-option
+              v-for="child in group.children"
+              :key="child.id"
+              :label="`  ${child.name}`"
+              :value="child.id"
+            />
+          </el-option-group>
         </el-select>
       </el-form-item>
       <el-form-item label="账户">
