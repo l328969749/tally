@@ -47,3 +47,11 @@ Entries discovered by the Agent during task execution should follow this format:
   - `PRAGMA rekey` 不支持 `?` 参数绑定，必须用 `db.pragma("rekey = '...'")` 字符串插值（密码需先经 `sanitizeSqlString` 转义单引号）。
   - `openEncryptedDatabase` 中 `verifyPassword`（SELECT sqlite_master）必须紧跟在 `applyCipherConfig` 设置 key 之后执行，若在其后才设置 `journal_mode = WAL`，rekey 后的旧密码打开会先在该 pragma 抛原生 SqliteError 而无法映射为 CryptoError。
   - `db.pragma('kdf_iter')` 返回 `[{"600000":"600000"}]` 格式（列名为值），断言时用 `Object.values(row)[0]` 取值。
+
+[Project Knowledge Summary]
+- Date: 2026-08-10
+- Context: Discovered by Agent while fixing preload CJS 输出类型错误（electron-vite 5.0.0 + vite 5 类型不兼容）
+- Category: Build Methods
+- Instructions:
+  - vite 必须用 ^6.0.0：electron-vite 5.0.0 的 `PreloadBuildOptions` 引用了 vite 6 才导出的 `BuildEnvironmentOptions` 类型，vite 5 会导致 `electron.vite.config.ts` 中 preload 的 `rollupOptions` 报 TS2769。`@vitejs/plugin-vue` 5.2.4 与 electron-vite 5.0.0 均兼容 vite 6，不要单独升级到 vite 7（plugin-vue 不支持）。
+  - preload 强制 CJS 输出的写法：`build.rollupOptions.output = { format: 'cjs', entryFileNames: '[name].cjs' }`，产物为 `out/preload/index.cjs`。
