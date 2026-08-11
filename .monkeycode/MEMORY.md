@@ -67,3 +67,12 @@ Entries discovered by the Agent during task execution should follow this format:
   - 备份/导出功能位于设置页「数据管理」tab，非默认 tab，E2E 需先点击 `.el-tabs__item`。
   - 分析页五个图表容器 ID：pie-chart、tag-chart、trend-chart、networth-chart、balance-chart，E2E 用 `waitForSelector('#xxx canvas')` 等待渲染。
   - 需求 2.3 启动自动打开上次账本会导致 E2E 二次运行时弹出「打开账本」解锁对话框遮挡新建按钮；E2E 开头需先检测 `.el-overlay-dialog`（含文本「打开账本」）并点击 `.el-dialog__headerbtn` 关闭（userData 的 config.json 跨运行残留）。
+
+[Project Knowledge Summary]
+- Date: 2026-08-11
+- Context: Discovered by Agent while verifying electron-builder 打包（electron-builder.yml）
+- Category: Build Methods
+- Instructions:
+  - electron-builder 打包命令：`npx electron-builder --linux AppImage --publish never`，产物 `dist/Tally-0.1.0.AppImage`（`dist/` 与 `out/` 均在 .gitignore）。
+  - `asarUnpack` 必须指向 `better-sqlite3-multiple-ciphers`（不是 better-sqlite3），否则原生模块留在 asar 内无法加载，打包产物启动即崩溃；打包后应在 `dist/linux-unpacked/resources/app.asar.unpacked/node_modules/better-sqlite3-multiple-ciphers/prebuilds/` 确认 `.node` 文件解包。
+  - 打包产物冒烟测试 `tests/e2e/packaged-smoke.test.ts` 用 `it.skipIf(!existsSync(packagedBinary))`，在无 dist 产物时自动跳过。
