@@ -44,6 +44,14 @@ const liquidTotal = computed(() => accountStore.totalBalance)
 const netWorth = computed(
   () => liquidTotal.value + assetStore.fixedTotal + assetStore.investmentTotal - assetStore.liabilityTotal
 )
+const totalAssets = computed(() => liquidTotal.value + assetStore.fixedTotal + assetStore.investmentTotal)
+
+function assetRatio(value: number): string {
+  if (totalAssets.value <= 0) {
+    return '-'
+  }
+  return `${((value / totalAssets.value) * 100).toFixed(1)}%`
+}
 
 onMounted(() => {
   assetStore.fetch()
@@ -221,14 +229,17 @@ function liabilityRemaining(liability: Liability): number {
         <div class="summary-item">
           <div class="summary-label">流动资产</div>
           <div class="summary-value">¥ {{ formatAmount(liquidTotal) }}</div>
+          <div class="summary-ratio">{{ assetRatio(liquidTotal) }}</div>
         </div>
         <div class="summary-item">
           <div class="summary-label">固定资产</div>
           <div class="summary-value">¥ {{ formatAmount(assetStore.fixedTotal) }}</div>
+          <div class="summary-ratio">{{ assetRatio(assetStore.fixedTotal) }}</div>
         </div>
         <div class="summary-item">
           <div class="summary-label">投资资产</div>
           <div class="summary-value">¥ {{ formatAmount(assetStore.investmentTotal) }}</div>
+          <div class="summary-ratio">{{ assetRatio(assetStore.investmentTotal) }}</div>
         </div>
         <div class="summary-item">
           <div class="summary-label">总负债</div>
@@ -416,6 +427,12 @@ function liabilityRemaining(liability: Liability): number {
 .summary-value {
   font-size: 18px;
   font-weight: 600;
+}
+
+.summary-ratio {
+  font-size: 12px;
+  color: var(--app-text-secondary);
+  margin-top: 2px;
 }
 
 .summary-item.highlight .summary-value {
