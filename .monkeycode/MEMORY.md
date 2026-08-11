@@ -55,3 +55,14 @@ Entries discovered by the Agent during task execution should follow this format:
 - Instructions:
   - vite 必须用 ^6.0.0：electron-vite 5.0.0 的 `PreloadBuildOptions` 引用了 vite 6 才导出的 `BuildEnvironmentOptions` 类型，vite 5 会导致 `electron.vite.config.ts` 中 preload 的 `rollupOptions` 报 TS2769。`@vitejs/plugin-vue` 5.2.4 与 electron-vite 5.0.0 均兼容 vite 6，不要单独升级到 vite 7（plugin-vue 不支持）。
   - preload 强制 CJS 输出的写法：`build.rollupOptions.output = { format: 'cjs', entryFileNames: '[name].cjs' }`，产物为 `out/preload/index.cjs`。
+
+[Project Knowledge Summary]
+- Date: 2026-08-11
+- Context: Discovered by Agent while running and debugging Electron E2E tests（任务 10.4）
+- Category: Testing Methods
+- Instructions:
+  - E2E 命令：`npm run test:e2e`（先 `electron-vite build` 再 `xvfb-run -a -s "-screen 0 1280x800x24" vitest run --config vitest.e2e.config.ts`）。直接跑 `npx vitest run` 会因 `Missing X server or $DISPLAY` 启动 Electron 失败。
+  - E2E 直接 `npx vitest run --config vitest.e2e.config.ts tests/e2e/app.e2e.test.ts` 时，必须先手动执行 `npx electron-vite build` 生成 `out/`，否则运行的仍是旧构建产物，改动不生效。
+  - E2E 通过 `app.evaluate` 打桩主进程 `dialog.showSaveDialog/showOpenDialog`，桩必须为每次保存返回唯一路径（`BackupService.create` 目标已存在会抛 `TARGET_EXISTS`），恢复对话框用 `showOpenDialog` 返回最近一次保存的路径。
+  - 备份/导出功能位于设置页「数据管理」tab，非默认 tab，E2E 需先点击 `.el-tabs__item`。
+  - 分析页五个图表容器 ID：pie-chart、tag-chart、trend-chart、networth-chart、balance-chart，E2E 用 `waitForSelector('#xxx canvas')` 等待渲染。
