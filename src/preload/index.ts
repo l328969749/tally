@@ -49,7 +49,9 @@ const api = {
     chooseCreatePath: (): Promise<{ path: string | null }> =>
       ipcRenderer.invoke(IpcChannels.ledger.chooseCreatePath),
     chooseOpenPath: (): Promise<{ path: string | null }> =>
-      ipcRenderer.invoke(IpcChannels.ledger.chooseOpenPath)
+      ipcRenderer.invoke(IpcChannels.ledger.chooseOpenPath),
+    delete: (): Promise<OpResult & { path?: string }> =>
+      ipcRenderer.invoke(IpcChannels.ledger.delete)
   },
   transaction: {
     list: (filter: TransactionFilter): Promise<TransactionListResult> =>

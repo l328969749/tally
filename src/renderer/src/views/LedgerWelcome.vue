@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { onMounted, ref } from 'vue'
 import { useRouter } from 'vue-router'
-import { ElMessage } from 'element-plus'
+import { ElMessage, ElMessageBox } from 'element-plus'
 import { useLedgerStore } from '@renderer/stores/ledger'
 
 const router = useRouter()
@@ -97,6 +97,32 @@ function mapError(error: unknown): string {
   const code = error instanceof Error ? error.message : String(error)
   return errorMessages[code] ?? '操作失败，请重试'
 }
+
+async function deleteLedger(): Promise<void> {
+  if (!lastUsedPath.value) {
+    return
+  }
+  try {
+    await ElMessageBox.confirm(
+      `确定要删除账本「${lastUsedPath.value}」吗？删除后文件不可恢复。`,
+      '删除账本',
+      {
+        type: 'warning',
+        confirmButtonText: '删除',
+        cancelButtonText: '取消'
+      }
+    )
+  } catch {
+    return
+  }
+  try {
+    await ledgerStore.remove()
+    ElMessage.success('账本已删除')
+    lastUsedPath.value = null
+  } catch (error) {
+    ElMessage.error(mapError(error))
+  }
+}
 </script>
 
 <template>
@@ -113,8 +139,9 @@ function mapError(error: unknown): string {
         </el-button>
         <el-button size="large" @click="openOpenDialog">打开账本</el-button>
       </div>
-      <p v-if="lastUsedPath" class="welcome-hint">
+      <p v-if="lastUsedPath" class="welcome-hint last-used">
         上次使用：{{ lastUsedPath }}
+        <el-button size="small" type="danger" link @click="deleteLedger">删除账本</el-button>
       </p>
       <p class="welcome-hint">数据完全存储在本地，使用 SQLCipher 加密保护</p>
     </div>
@@ -212,5 +239,11 @@ h1 {
   font-size: 12px;
   color: var(--app-text-secondary);
   margin-top: 4px;
+}
+
+.last-used {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
 }
 </style>

@@ -8,7 +8,8 @@ export const IpcChannels = {
     clearLastUsed: 'ledger:clearLastUsed',
     setBackupReminder: 'ledger:setBackupReminder',
     chooseCreatePath: 'ledger:chooseCreatePath',
-    chooseOpenPath: 'ledger:chooseOpenPath'
+    chooseOpenPath: 'ledger:chooseOpenPath',
+    delete: 'ledger:delete'
   },
   transaction: {
     list: 'transaction:list',

@@ -63,6 +63,18 @@ async function loadData(): Promise<void> {
       window.api.analytics.netWorth(),
       window.api.analytics.accountBalance()
     ])
+    const failed = [category, tag, trend, netWorth, balance].find(
+      (result) => result && typeof result === 'object' && 'error' in result
+    )
+    if (failed) {
+      ElMessage.error((failed as { error: string }).error)
+      expenseByCategory.value = []
+      expenseByTag.value = []
+      monthlyTrend.value = []
+      netWorthPoints.value = []
+      accountBalances.value = []
+      return
+    }
     expenseByCategory.value = category
     expenseByTag.value = tag
     monthlyTrend.value = trend

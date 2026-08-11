@@ -140,10 +140,8 @@ export class AnalyticsRepository {
       .all() as Array<{ date: string; value: number }>
 
     const liabilityRows = this.db
-      .prepare(
-        'SELECT total_amount AS total, paid_amount AS paid, created_at AS createdAt FROM liability'
-      )
-      .all() as Array<{ total: number; paid: number; createdAt: number }>
+      .prepare('SELECT total_amount AS total, paid_amount AS paid FROM liability')
+      .all() as Array<{ total: number; paid: number }>
 
     const accounts = this.db
       .prepare('SELECT id, initial_balance AS initialBalance FROM account')

@@ -142,6 +142,38 @@ export class LedgerManager {
     this.failCount = 0
   }
 
+  deleteCurrent(): string {
+    const path = this.currentPath ?? this.getLastUsedPath()
+    if (!path) {
+      throw new Error('LEDGER_NOT_FOUND')
+    }
+    if (this.db) {
+      try {
+        this.db.close()
+      } catch {
+        // ignore
+      }
+      this.db = null
+      this.storage = null
+      this.currentName = ''
+    }
+    const { unlinkSync } = require('fs')
+    const targets = [path, `${path}.salt`]
+    for (const target of targets) {
+      if (existsSync(target)) {
+        unlinkSync(target)
+      }
+    }
+    this.currentPath = null
+    this.failCount = 0
+    const config = this.readConfig()
+    if (config.lastLedgerPath === path) {
+      delete config.lastLedgerPath
+    }
+    this.writeConfig(config)
+    return path
+  }
+
   getLastUsedPath(): string | null {
     return this.readConfig().lastLedgerPath ?? null
   }

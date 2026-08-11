@@ -47,6 +47,13 @@ export const useLedgerStore = defineStore('ledger', {
     async getLastUsedPath(): Promise<string | null> {
       const result = await window.api.ledger.getLastUsed()
       return result.path
+    },
+    async remove(): Promise<void> {
+      const result = await window.api.ledger.delete()
+      if ('error' in result) {
+        throw new Error(result.error)
+      }
+      this.meta = null
     }
   }
 })

@@ -374,4 +374,48 @@ describe('AnalyticsRepository', () => {
     expect(trend[1].month).toBe('2026-02')
     expect(trend[1].expense).toBe(1500)
   })
+
+  it('回归: 净资产趋势在存在交易与负债时按日期累计', () => {
+    const accountId = seedAccount(ctx.storage)
+    const expenseCat = seedCategory(ctx.storage, 'expense')
+    const incomeCat = seedCategory(ctx.storage, 'income')
+    ctx.storage.transaction.create({
+      type: 'expense',
+      amount: 88,
+      categoryId: expenseCat,
+      accountId,
+      date: '2026-04-01'
+    })
+    ctx.storage.transaction.create({
+      type: 'income',
+      amount: 500,
+      categoryId: incomeCat,
+      accountId,
+      date: '2026-04-02'
+    })
+    ctx.storage.asset.createLiability({
+      name: '车贷',
+      totalAmount: 1000,
+      paidAmount: 200
+    })
+
+    const points = ctx.storage.analytics.netWorthTrend()
+    expect(points).toHaveLength(2)
+    expect(points[0]).toMatchObject({ date: '2026-04-01', value: 1000 - 88 - 800 })
+    expect(points[1]).toMatchObject({ date: '2026-04-02', value: 1000 - 88 + 500 - 800 })
+  })
+
+  it('回归: 净资产趋势在无负债表记录时正常返回', () => {
+    const accountId = seedAccount(ctx.storage)
+    const expenseCat = seedCategory(ctx.storage, 'expense')
+    ctx.storage.transaction.create({
+      type: 'expense',
+      amount: 88,
+      categoryId: expenseCat,
+      accountId,
+      date: '2026-04-01'
+    })
+    const points = ctx.storage.analytics.netWorthTrend()
+    expect(points).toMatchObject([{ date: '2026-04-01', value: 912 }])
+  })
 })

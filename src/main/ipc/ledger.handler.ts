@@ -72,6 +72,15 @@ export function registerLedgerHandlers(ledgerManager: LedgerManager): void {
     ledgerManager.setBackupReminder(enabled)
     return { ok: true }
   })
+
+  ipcMain.handle(IpcChannels.ledger.delete, () => {
+    try {
+      const path = ledgerManager.deleteCurrent()
+      return { ok: true, path }
+    } catch (error) {
+      return { error: mapLedgerError(error) }
+    }
+  })
 }
 
 function mapLedgerError(error: unknown): string {

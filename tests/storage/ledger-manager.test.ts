@@ -116,4 +116,22 @@ describe('LedgerManager 账本生命周期', () => {
     const manager2 = new LedgerManager()
     expect(manager2.getBackupReminder()).toBe(true)
   })
+
+  it('需求2.5: 删除账本删除文件并清除最近路径', () => {
+    const manager = new LedgerManager()
+    const ledgerPath = join(userDataDir, 'delete-me.ledger')
+    manager.create(ledgerPath, 'pw-123')
+    expect(existsSync(ledgerPath)).toBe(true)
+
+    const deleted = manager.deleteCurrent()
+    expect(deleted).toBe(ledgerPath)
+    expect(manager.isOpen).toBe(false)
+    expect(existsSync(ledgerPath)).toBe(false)
+    expect(manager.getLastUsedPath()).toBe(null)
+  })
+
+  it('需求2.5: 未打开且无最近账本时删除抛 LEDGER_NOT_FOUND', () => {
+    const manager = new LedgerManager()
+    expect(() => manager.deleteCurrent()).toThrow('LEDGER_NOT_FOUND')
+  })
 })
