@@ -15,6 +15,7 @@ const passwordForm = reactive({
 })
 
 const backupReminder = ref(false)
+const autoOpenLastLedger = ref(true)
 const activeTab = ref('tags')
 
 const newTagName = ref('')
@@ -31,6 +32,12 @@ const editingCategory = ref<Category | null>(null)
 const categoryEditForm = reactive({ name: '', parentId: null as number | null })
 
 onMounted(async () => {
+  const [reminder, autoOpen] = await Promise.all([
+    window.api.ledger.getBackupReminder(),
+    window.api.ledger.getAutoOpenLastLedger()
+  ])
+  backupReminder.value = reminder.enabled
+  autoOpenLastLedger.value = autoOpen.enabled
   await Promise.all([tagStore.fetch(), categoryStore.fetch()])
 })
 
@@ -265,6 +272,15 @@ async function toggleBackupReminder(): Promise<void> {
   }
   ElMessage.success(backupReminder.value ? '已开启退出前备份提示' : '已关闭退出前备份提示')
 }
+
+async function toggleAutoOpenLastLedger(): Promise<void> {
+  const result = await window.api.ledger.setAutoOpenLastLedger(autoOpenLastLedger.value)
+  if ('error' in result) {
+    ElMessage.error(result.error)
+    return
+  }
+  ElMessage.success(autoOpenLastLedger.value ? '已开启启动自动打开' : '已关闭启动自动打开')
+}
 </script>
 
 <template>
@@ -403,6 +419,10 @@ async function toggleBackupReminder(): Promise<void> {
           <h3 style="margin-top: 24px">退出前备份提示</h3>
           <el-switch v-model="backupReminder" @change="toggleBackupReminder" />
           <span class="hint-text">开启后，退出应用时会询问是否备份账本。</span>
+
+          <h3 style="margin-top: 24px">启动时自动打开上次使用的账本</h3>
+          <el-switch v-model="autoOpenLastLedger" @change="toggleAutoOpenLastLedger" />
+          <span class="hint-text">开启后，启动应用时自动弹出上次账本的解锁窗口。</span>
         </div>
       </el-tab-pane>
 

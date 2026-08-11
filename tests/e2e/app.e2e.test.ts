@@ -49,6 +49,12 @@ describe('Electron E2E 全流程（任务 10.4）', () => {
     })
     await page.waitForSelector('text=新建账本')
 
+    // 若上次运行残留的 lastLedgerPath 触发了自动解锁对话框，先关闭
+    const autoOpenDialog = page.locator('.el-overlay-dialog', { hasText: '打开账本' })
+    if (await autoOpenDialog.isVisible().catch(() => false)) {
+      await autoOpenDialog.locator('.el-dialog__headerbtn').click()
+    }
+
     // 1. 新建账本
     await page.getByRole('button', { name: '新建账本' }).click()
     await page.locator('input[placeholder="例如：我的家庭账本"]').fill('E2E测试账本')

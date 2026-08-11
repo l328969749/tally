@@ -73,6 +73,22 @@ export function registerLedgerHandlers(ledgerManager: LedgerManager): void {
     return { ok: true }
   })
 
+  ipcMain.handle(IpcChannels.ledger.getBackupReminder, () => {
+    return { enabled: ledgerManager.getBackupReminder() }
+  })
+
+  ipcMain.handle(IpcChannels.ledger.getAutoOpenLastLedger, () => {
+    return { enabled: ledgerManager.getAutoOpenLastLedger() }
+  })
+
+  ipcMain.handle(
+    IpcChannels.ledger.setAutoOpenLastLedger,
+    (_event: IpcMainInvokeEvent, enabled: boolean) => {
+      ledgerManager.setAutoOpenLastLedger(enabled)
+      return { ok: true }
+    }
+  )
+
   ipcMain.handle(IpcChannels.ledger.delete, () => {
     try {
       const path = ledgerManager.deleteCurrent()

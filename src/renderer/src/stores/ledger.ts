@@ -54,6 +54,13 @@ export const useLedgerStore = defineStore('ledger', {
         throw new Error(result.error)
       }
       this.meta = null
+    },
+    async getAutoOpenLastLedger(): Promise<boolean> {
+      const result = await window.api.ledger.getAutoOpenLastLedger()
+      return result.enabled
+    },
+    async setAutoOpenLastLedger(enabled: boolean): Promise<void> {
+      await window.api.ledger.setAutoOpenLastLedger(enabled)
     }
   }
 })

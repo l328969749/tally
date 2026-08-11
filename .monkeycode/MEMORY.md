@@ -66,3 +66,4 @@ Entries discovered by the Agent during task execution should follow this format:
   - E2E 通过 `app.evaluate` 打桩主进程 `dialog.showSaveDialog/showOpenDialog`，桩必须为每次保存返回唯一路径（`BackupService.create` 目标已存在会抛 `TARGET_EXISTS`），恢复对话框用 `showOpenDialog` 返回最近一次保存的路径。
   - 备份/导出功能位于设置页「数据管理」tab，非默认 tab，E2E 需先点击 `.el-tabs__item`。
   - 分析页五个图表容器 ID：pie-chart、tag-chart、trend-chart、networth-chart、balance-chart，E2E 用 `waitForSelector('#xxx canvas')` 等待渲染。
+  - 需求 2.3 启动自动打开上次账本会导致 E2E 二次运行时弹出「打开账本」解锁对话框遮挡新建按钮；E2E 开头需先检测 `.el-overlay-dialog`（含文本「打开账本」）并点击 `.el-dialog__headerbtn` 关闭（userData 的 config.json 跨运行残留）。

@@ -9,7 +9,10 @@ export const IpcChannels = {
     setBackupReminder: 'ledger:setBackupReminder',
     chooseCreatePath: 'ledger:chooseCreatePath',
     chooseOpenPath: 'ledger:chooseOpenPath',
-    delete: 'ledger:delete'
+    delete: 'ledger:delete',
+    getAutoOpenLastLedger: 'ledger:getAutoOpenLastLedger',
+    setAutoOpenLastLedger: 'ledger:setAutoOpenLastLedger',
+    getBackupReminder: 'ledger:getBackupReminder'
   },
   transaction: {
     list: 'transaction:list',

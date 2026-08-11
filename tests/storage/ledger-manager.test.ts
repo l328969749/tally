@@ -117,6 +117,14 @@ describe('LedgerManager 账本生命周期', () => {
     expect(manager2.getBackupReminder()).toBe(true)
   })
 
+  it('需求2.3: 启动自动打开上次账本开关默认开启且可持久化', () => {
+    const manager = new LedgerManager()
+    expect(manager.getAutoOpenLastLedger()).toBe(true)
+    manager.setAutoOpenLastLedger(false)
+    const manager2 = new LedgerManager()
+    expect(manager2.getAutoOpenLastLedger()).toBe(false)
+  })
+
   it('需求2.5: 删除账本删除文件并清除最近路径', () => {
     const manager = new LedgerManager()
     const ledgerPath = join(userDataDir, 'delete-me.ledger')

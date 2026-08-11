@@ -51,7 +51,13 @@ const api = {
     chooseOpenPath: (): Promise<{ path: string | null }> =>
       ipcRenderer.invoke(IpcChannels.ledger.chooseOpenPath),
     delete: (): Promise<OpResult & { path?: string }> =>
-      ipcRenderer.invoke(IpcChannels.ledger.delete)
+      ipcRenderer.invoke(IpcChannels.ledger.delete),
+    getAutoOpenLastLedger: (): Promise<{ enabled: boolean }> =>
+      ipcRenderer.invoke(IpcChannels.ledger.getAutoOpenLastLedger),
+    setAutoOpenLastLedger: (enabled: boolean): Promise<OpResult> =>
+      ipcRenderer.invoke(IpcChannels.ledger.setAutoOpenLastLedger, enabled),
+    getBackupReminder: (): Promise<{ enabled: boolean }> =>
+      ipcRenderer.invoke(IpcChannels.ledger.getBackupReminder)
   },
   transaction: {
     list: (filter: TransactionFilter): Promise<TransactionListResult> =>

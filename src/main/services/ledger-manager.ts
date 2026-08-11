@@ -15,6 +15,7 @@ import {
 interface AppConfig {
   lastLedgerPath?: string
   backupReminder: boolean
+  autoOpenLastLedger: boolean
   globalShortcut: string
 }
 
@@ -37,6 +38,7 @@ export class LedgerManager {
         const parsed = JSON.parse(raw)
         return {
           backupReminder: parsed.backupReminder ?? false,
+          autoOpenLastLedger: parsed.autoOpenLastLedger ?? true,
           globalShortcut: parsed.globalShortcut ?? 'CommandOrControl+Shift+K',
           lastLedgerPath: parsed.lastLedgerPath
         }
@@ -44,7 +46,7 @@ export class LedgerManager {
     } catch {
       // ignore malformed config
     }
-    return { backupReminder: false, globalShortcut: 'CommandOrControl+Shift+K' }
+    return { backupReminder: false, autoOpenLastLedger: true, globalShortcut: 'CommandOrControl+Shift+K' }
   }
 
   private writeConfig(config: AppConfig): void {
@@ -185,6 +187,16 @@ export class LedgerManager {
   setBackupReminder(enabled: boolean): void {
     const config = this.readConfig()
     config.backupReminder = enabled
+    this.writeConfig(config)
+  }
+
+  getAutoOpenLastLedger(): boolean {
+    return this.readConfig().autoOpenLastLedger
+  }
+
+  setAutoOpenLastLedger(enabled: boolean): void {
+    const config = this.readConfig()
+    config.autoOpenLastLedger = enabled
     this.writeConfig(config)
   }
 

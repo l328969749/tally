@@ -27,6 +27,11 @@ const lastUsedPath = ref<string | null>(null)
 
 onMounted(async () => {
   lastUsedPath.value = await ledgerStore.getLastUsedPath()
+  const autoOpen = await ledgerStore.getAutoOpenLastLedger()
+  if (lastUsedPath.value && autoOpen) {
+    dialogMode.value = 'open'
+    dialogVisible.value = true
+  }
 })
 
 function openCreateDialog(): void {
