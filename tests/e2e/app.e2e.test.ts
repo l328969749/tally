@@ -68,7 +68,7 @@ describe('Electron E2E 全流程（任务 10.4）', () => {
     // 2. 新建账户
     await nav(page, '账户')
     await page.getByRole('button', { name: '新建账户' }).click()
-    await page.locator('input[placeholder="例如：招商银行储蓄卡"]').fill('测试银行卡')
+    await page.locator('input[placeholder="例如：招商银行信用卡"]').fill('测试银行卡')
     await page.locator('.el-input-number input').fill('1000')
     await page.getByRole('button', { name: '保存' }).click()
     await page.waitForSelector('text=测试银行卡')

@@ -1,9 +1,13 @@
-export type AccountType = 'cash' | 'bank' | 'alipay' | 'wechat' | 'other'
+export type AccountType = 'cash' | 'bank' | 'alipay' | 'wechat' | 'credit' | 'other'
 
 export interface Account {
   id: number
   name: string
   type: AccountType
+  cardNumber: string | null
+  creditLimit: number
+  billDate: number | null
+  dueDate: number | null
   initialBalance: number
   sortOrder: number
   archived: number
@@ -12,7 +16,20 @@ export interface Account {
 
 export interface AccountWithBalance extends Account {
   balance: number
+  availableCredit?: number
 }
+
+export interface AccountInput {
+  name: string
+  type: AccountType
+  initialBalance: number
+  cardNumber?: string | null
+  creditLimit?: number
+  billDate?: number | null
+  dueDate?: number | null
+}
+
+export type AccountUpdateInput = Partial<Omit<AccountInput, 'name'>> & { name?: string }
 
 export type TransactionType = 'income' | 'expense'
 
@@ -149,7 +166,11 @@ export interface NetWorthPoint {
 export interface AccountBalanceItem {
   accountId: number
   accountName: string
+  accountType: AccountType
   balance: number
+  availableCredit: number
+  dueDate: number | null
+  creditLimit: number
 }
 
 export interface DashboardSummary {

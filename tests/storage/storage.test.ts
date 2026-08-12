@@ -82,6 +82,84 @@ describe('AccountRepository', () => {
     })
     expect(ctx.storage.account.hasTransactions(accountId)).toBe(true)
   })
+
+  it('创建信用卡账户保存卡号与额度信息', () => {
+    const account = ctx.storage.account.create({
+      name: '招行信用卡',
+      type: 'credit',
+      initialBalance: 0,
+      cardNumber: '6225 8899 0011 2233',
+      creditLimit: 20000,
+      billDate: 5,
+      dueDate: 23
+    })
+    expect(account.type).toBe('credit')
+    expect(account.cardNumber).toBe('6225 8899 0011 2233')
+    expect(account.creditLimit).toBe(20000)
+    expect(account.billDate).toBe(5)
+    expect(account.dueDate).toBe(23)
+  })
+
+  it('非信用卡账户忽略信用卡专属字段', () => {
+    const account = ctx.storage.account.create({
+      name: '储蓄卡',
+      type: 'bank',
+      initialBalance: 100,
+      creditLimit: 9999,
+      billDate: 3,
+      dueDate: 8
+    })
+    expect(account.creditLimit).toBe(0)
+    expect(account.billDate).toBeNull()
+    expect(account.dueDate).toBeNull()
+  })
+
+  it('更新信用卡账户的卡号与额度信息', () => {
+    const id = ctx.storage.account.create({
+      name: '招行信用卡',
+      type: 'credit',
+      initialBalance: 0,
+      creditLimit: 20000,
+      billDate: 5,
+      dueDate: 23
+    }).id
+    ctx.storage.account.update(id, { cardNumber: '6225 0000 1111 2222', creditLimit: 30000 })
+    const account = ctx.storage.account.getById(id)!
+    expect(account.cardNumber).toBe('6225 0000 1111 2222')
+    expect(account.creditLimit).toBe(30000)
+    expect(account.billDate).toBe(5)
+    expect(account.dueDate).toBe(23)
+  })
+
+  it('accountBalance 返回信用卡剩余额度与还款日', () => {
+    const creditId = ctx.storage.account.create({
+      name: '招行信用卡',
+      type: 'credit',
+      initialBalance: 0,
+      creditLimit: 20000,
+      billDate: 5,
+      dueDate: 23
+    }).id
+    ctx.storage.account.create({ name: '储蓄卡', type: 'bank', initialBalance: 3000 })
+    const expenseCat = seedCategory(ctx.storage, 'expense')
+    ctx.storage.transaction.create({
+      type: 'expense',
+      amount: 1200,
+      categoryId: expenseCat,
+      accountId: creditId,
+      date: '2026-01-15'
+    })
+
+    const items = ctx.storage.analytics.accountBalance()
+    const credit = items.find((item) => item.accountId === creditId)!
+    expect(credit.balance).toBe(-1200)
+    expect(credit.availableCredit).toBe(18800)
+    expect(credit.dueDate).toBe(23)
+    expect(credit.accountType).toBe('credit')
+
+    const bank = items.find((item) => item.accountName === '储蓄卡')!
+    expect(bank.availableCredit).toBe(0)
+  })
 })
 
 describe('TransactionRepository', () => {

@@ -1,10 +1,12 @@
 <script setup lang="ts">
 import { computed, onMounted, ref } from 'vue'
-import type { OverviewData } from '@shared/types/models'
+import type { AccountBalanceItem, OverviewData } from '@shared/types/models'
 import { formatAmount, monthStart, monthEnd } from '@renderer/utils/date'
+import { daysUntilDue, isDueReminder } from '@renderer/utils/credit'
 
 const overview = ref<OverviewData | null>(null)
 const loading = ref(true)
+const balanceItems = ref<AccountBalanceItem[]>([])
 
 onMounted(async () => {
   try {
@@ -12,9 +14,15 @@ onMounted(async () => {
   } finally {
     loading.value = false
   }
+  balanceItems.value = await window.api.analytics.accountBalance()
 })
 
 const monthRange = computed(() => `${monthStart()} ~ ${monthEnd()}`)
+
+const today = new Date()
+const dueReminders = computed(() =>
+  balanceItems.value.filter((item) => isDueReminder(item.dueDate, item.balance, today))
+)
 </script>
 
 <template>
@@ -44,6 +52,20 @@ const monthRange = computed(() => `${monthStart()} ~ ${monthEnd()}`)
             <div class="stat-label">本月结余</div>
             <div class="stat-value">¥ {{ formatAmount(overview.monthIncome - overview.monthExpense) }}</div>
             <div class="stat-sub">收入 - 支出</div>
+          </div>
+        </div>
+
+        <div v-if="dueReminders.length > 0" class="due-section">
+          <h3>还款提醒</h3>
+          <div class="due-list">
+            <div v-for="item in dueReminders" :key="item.accountId" class="due-item">
+              <div class="due-name">{{ item.accountName }}</div>
+              <div class="due-meta">
+                欠款 ¥ {{ formatAmount(Math.abs(item.balance)) }} ·
+                还款日 {{ item.dueDate }} 日 ·
+                {{ daysUntilDue(item.dueDate, today) === 0 ? '今天到期' : `剩 ${daysUntilDue(item.dueDate, today)} 天` }}
+              </div>
+            </div>
           </div>
         </div>
 
@@ -130,6 +152,41 @@ const monthRange = computed(() => `${monthStart()} ~ ${monthEnd()}`)
   border-radius: var(--app-radius);
   padding: 20px;
   border: 1px solid var(--app-border);
+}
+
+.due-section {
+  background: #fff8f0;
+  border: 1px solid #f5d9ab;
+  border-radius: var(--app-radius);
+  padding: 20px;
+  margin-bottom: 16px;
+}
+
+.due-section h3 {
+  margin-bottom: 12px;
+  font-size: 15px;
+  color: #b88230;
+}
+
+.due-list {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.due-item {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.due-name {
+  font-weight: 600;
+}
+
+.due-meta {
+  font-size: 13px;
+  color: var(--app-text-secondary);
 }
 
 .recent-section h3 {

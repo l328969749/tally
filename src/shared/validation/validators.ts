@@ -24,6 +24,21 @@ export function isValidAccountName(name: string): boolean {
   return trimmed.length > 0 && trimmed.length <= 50
 }
 
+export function isValidCardNumber(cardNumber: string): boolean {
+  if (!cardNumber.trim()) {
+    return true
+  }
+  return /^[0-9\s-]+$/.test(cardNumber.trim())
+}
+
+export function isValidMonthDay(value: number): boolean {
+  return Number.isInteger(value) && value >= 1 && value <= 31
+}
+
+export function isValidCreditLimit(value: number): boolean {
+  return Number.isFinite(value) && value >= 0
+}
+
 export function isValidDate(date: string): boolean {
   return /^\d{4}-\d{2}-\d{2}$/.test(date)
 }

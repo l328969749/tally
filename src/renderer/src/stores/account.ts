@@ -1,5 +1,5 @@
 import { defineStore } from 'pinia'
-import type { AccountWithBalance } from '@shared/types/models'
+import type { AccountInput, AccountType, AccountUpdateInput, AccountWithBalance } from '@shared/types/models'
 
 interface AccountState {
   accounts: AccountWithBalance[]
@@ -20,11 +20,11 @@ export const useAccountStore = defineStore('account', {
       this.accounts = await window.api.account.list()
       this.loaded = true
     },
-    async create(data: { name: string; type: 'cash' | 'bank' | 'alipay' | 'wechat' | 'other'; initialBalance: number }): Promise<void> {
+    async create(data: AccountInput): Promise<void> {
       await window.api.account.create(data)
       await this.fetch()
     },
-    async update(id: number, data: { name?: string; type?: 'cash' | 'bank' | 'alipay' | 'wechat' | 'other'; initialBalance?: number }): Promise<void> {
+    async update(id: number, data: AccountUpdateInput): Promise<void> {
       await window.api.account.update(id, data)
       await this.fetch()
     },
@@ -42,3 +42,5 @@ export const useAccountStore = defineStore('account', {
     }
   }
 })
+
+export type { AccountType }

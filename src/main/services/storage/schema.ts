@@ -1,13 +1,22 @@
 import type Database from 'better-sqlite3-multiple-ciphers'
 
-export const SCHEMA_VERSION = 1
+export const SCHEMA_VERSION = 2
 
-export function migrateSchema(db: Database.Database): void {
+function getSchemaVersion(db: Database.Database): number {
+  const value = db.pragma('user_version', { simple: true })
+  return typeof value === 'number' ? value : 0
+}
+
+function createBaseTables(db: Database.Database): void {
   db.exec(`
     CREATE TABLE IF NOT EXISTS account (
       id INTEGER PRIMARY KEY AUTOINCREMENT,
       name TEXT NOT NULL,
-      type TEXT NOT NULL CHECK(type IN ('cash','bank','alipay','wechat','other')),
+      type TEXT NOT NULL CHECK(type IN ('cash','bank','alipay','wechat','credit','other')),
+      card_number TEXT,
+      credit_limit REAL NOT NULL DEFAULT 0,
+      bill_date INTEGER,
+      due_date INTEGER,
       initial_balance REAL NOT NULL DEFAULT 0,
       sort_order INTEGER NOT NULL DEFAULT 0,
       archived INTEGER NOT NULL DEFAULT 0,
@@ -80,7 +89,49 @@ export function migrateSchema(db: Database.Database): void {
       value TEXT NOT NULL
     );
   `)
+}
 
+function migrateAccountToV2(db: Database.Database): void {
+  const columns = db.prepare('PRAGMA table_info(account)').all() as Array<{ name: string }>
+  if (columns.some((column) => column.name === 'card_number')) {
+    return
+  }
+  db.pragma('foreign_keys = OFF')
+  db.exec(`
+    BEGIN;
+    CREATE TABLE account_v2 (
+      id INTEGER PRIMARY KEY AUTOINCREMENT,
+      name TEXT NOT NULL,
+      type TEXT NOT NULL CHECK(type IN ('cash','bank','alipay','wechat','credit','other')),
+      card_number TEXT,
+      credit_limit REAL NOT NULL DEFAULT 0,
+      bill_date INTEGER,
+      due_date INTEGER,
+      initial_balance REAL NOT NULL DEFAULT 0,
+      sort_order INTEGER NOT NULL DEFAULT 0,
+      archived INTEGER NOT NULL DEFAULT 0,
+      created_at INTEGER NOT NULL
+    );
+    INSERT INTO account_v2 (id, name, type, initial_balance, sort_order, archived, created_at)
+      SELECT id, name, type, initial_balance, sort_order, archived, created_at FROM account;
+    DROP TABLE account;
+    ALTER TABLE account_v2 RENAME TO account;
+    COMMIT;
+  `)
+  db.pragma('foreign_keys = ON')
+}
+
+export function migrateSchema(db: Database.Database): void {
+  const current = getSchemaVersion(db)
+  if (current === 0) {
+    createBaseTables(db)
+    db.pragma(`user_version = ${SCHEMA_VERSION}`)
+    return
+  }
+  if (current < 2) {
+    migrateAccountToV2(db)
+  }
+  createBaseTables(db)
   db.pragma(`user_version = ${SCHEMA_VERSION}`)
 }
 

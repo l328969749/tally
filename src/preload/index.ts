@@ -2,6 +2,8 @@ import { contextBridge, ipcRenderer } from 'electron'
 import { IpcChannels } from '../shared/ipc-channels'
 import type {
   Account,
+  AccountInput,
+  AccountUpdateInput,
   AccountWithBalance,
   AccountType,
   Asset,
@@ -70,17 +72,25 @@ const api = {
   },
   account: {
     list: (): Promise<AccountWithBalance[]> => ipcRenderer.invoke(IpcChannels.account.list),
-    create: (data: { name: string; type: AccountType; initialBalance: number }): Promise<Account> =>
+    create: (data: AccountInput): Promise<Account> =>
       ipcRenderer.invoke(IpcChannels.account.create, data),
-    update: (
-      id: number,
-      data: { name?: string; type?: AccountType; initialBalance?: number }
-    ): Promise<OpResult> => ipcRenderer.invoke(IpcChannels.account.update, id, data),
+    update: (id: number, data: AccountUpdateInput): Promise<OpResult> =>
+      ipcRenderer.invoke(IpcChannels.account.update, id, data),
     delete: (id: number): Promise<OpResult> => ipcRenderer.invoke(IpcChannels.account.delete, id),
     archive: (id: number, archived: boolean): Promise<OpResult> =>
       ipcRenderer.invoke(IpcChannels.account.archive, id, archived),
     reorder: (id: number, sortOrder: number): Promise<OpResult> =>
       ipcRenderer.invoke(IpcChannels.account.reorder, id, sortOrder)
+  },
+  credit: {
+    repay: (data: {
+      creditAccountId: number
+      fundingAccountId: number
+      amount: number
+      date: string
+      note?: string | null
+    }): Promise<OpResult & { expense?: unknown; income?: unknown }> =>
+      ipcRenderer.invoke(IpcChannels.credit.repay, data)
   },
   category: {
     list: (): Promise<Category[]> => ipcRenderer.invoke(IpcChannels.category.list),

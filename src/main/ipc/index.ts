@@ -9,6 +9,7 @@ import { registerTagHandlers } from './tag.handler'
 import { registerAssetHandlers } from './asset.handler'
 import { registerAnalyticsHandlers } from './analytics.handler'
 import { registerBackupExportHandlers } from './backup-export.handler'
+import { registerCreditHandlers } from './credit.handler'
 
 let ledgerManager: LedgerManager | null = null
 
@@ -34,4 +35,5 @@ export function registerIpcHandlers(): void {
   registerAssetHandlers(ledger)
   registerAnalyticsHandlers(ledger)
   registerBackupExportHandlers(ledger)
+  registerCreditHandlers(ledger)
 }

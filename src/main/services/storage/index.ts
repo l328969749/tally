@@ -5,6 +5,7 @@ import { TagRepository } from './repositories/tag.repository'
 import { TransactionRepository } from './repositories/transaction.repository'
 import { AssetRepository } from './repositories/asset.repository'
 import { AnalyticsRepository } from './repositories/analytics.repository'
+import { CreditService } from '../credit.service'
 
 export class StorageService {
   private _account?: AccountRepository
@@ -13,6 +14,7 @@ export class StorageService {
   private _transaction?: TransactionRepository
   private _asset?: AssetRepository
   private _analytics?: AnalyticsRepository
+  private _credit?: CreditService
 
   constructor(private db: Database.Database) {}
 
@@ -56,6 +58,13 @@ export class StorageService {
       this._analytics = new AnalyticsRepository(this.db, this.tag)
     }
     return this._analytics
+  }
+
+  get credit(): CreditService {
+    if (!this._credit) {
+      this._credit = new CreditService(this.db, this.account, this.category, this.transaction)
+    }
+    return this._credit
   }
 
   raw(): Database.Database {

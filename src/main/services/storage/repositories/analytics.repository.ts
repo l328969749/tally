@@ -185,7 +185,8 @@ export class AnalyticsRepository {
   accountBalance(): AccountBalanceItem[] {
     const rows = this.db
       .prepare(
-        `SELECT a.id AS accountId, a.name AS accountName,
+        `SELECT a.id AS accountId, a.name AS accountName, a.type AS accountType,
+           a.credit_limit AS creditLimit, a.due_date AS dueDate,
            a.initial_balance + COALESCE((
              SELECT SUM(CASE WHEN t.type = 'income' THEN t.amount ELSE -t.amount END)
              FROM "transaction" t WHERE t.account_id = a.id
@@ -194,7 +195,10 @@ export class AnalyticsRepository {
          WHERE a.archived = 0
          ORDER BY a.sort_order ASC, a.id ASC`
       )
-      .all() as unknown as AccountBalanceItem[]
-    return rows
+      .all() as unknown as Array<Omit<AccountBalanceItem, 'availableCredit'>>
+    return rows.map((row) => ({
+      ...row,
+      availableCredit: row.creditLimit + Math.min(row.balance, 0)
+    }))
   }
 }

@@ -28,6 +28,9 @@ export const IpcChannels = {
     archive: 'account:archive',
     reorder: 'account:reorder'
   },
+  credit: {
+    repay: 'credit:repay'
+  },
   category: {
     list: 'category:list',
     create: 'category:create',
