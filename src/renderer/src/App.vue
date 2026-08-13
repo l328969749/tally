@@ -14,6 +14,7 @@ const navItems = [
   { path: '/transactions', label: '流水', icon: 'Tickets' },
   { path: '/accounts', label: '账户', icon: 'Wallet' },
   { path: '/assets', label: '资产', icon: 'PieChart' },
+  { path: '/rentals', label: '出租', icon: 'HomeFilled' },
   { path: '/analytics', label: '分析', icon: 'TrendCharts' },
   { path: '/settings', label: '设置', icon: 'Setting' }
 ]

@@ -5,7 +5,9 @@ import { TagRepository } from './repositories/tag.repository'
 import { TransactionRepository } from './repositories/transaction.repository'
 import { AssetRepository } from './repositories/asset.repository'
 import { AnalyticsRepository } from './repositories/analytics.repository'
+import { RentalRepository } from './repositories/rental.repository'
 import { CreditService } from '../credit.service'
+import { RentalService } from '../rental.service'
 
 export class StorageService {
   private _account?: AccountRepository
@@ -14,7 +16,9 @@ export class StorageService {
   private _transaction?: TransactionRepository
   private _asset?: AssetRepository
   private _analytics?: AnalyticsRepository
+  private _rental?: RentalRepository
   private _credit?: CreditService
+  private _rentalService?: RentalService
 
   constructor(private db: Database.Database) {}
 
@@ -65,6 +69,26 @@ export class StorageService {
       this._credit = new CreditService(this.db, this.account, this.category, this.transaction)
     }
     return this._credit
+  }
+
+  get rental(): RentalRepository {
+    if (!this._rental) {
+      this._rental = new RentalRepository(this.db)
+    }
+    return this._rental
+  }
+
+  get rentalService(): RentalService {
+    if (!this._rentalService) {
+      this._rentalService = new RentalService(
+        this.db,
+        this.account,
+        this.category,
+        this.transaction,
+        this.rental
+      )
+    }
+    return this._rentalService
   }
 
   raw(): Database.Database {

@@ -31,6 +31,24 @@ export const IpcChannels = {
   credit: {
     repay: 'credit:repay'
   },
+  rental: {
+    listProperties: 'rental:listProperties',
+    createProperty: 'rental:createProperty',
+    updateProperty: 'rental:updateProperty',
+    deleteProperty: 'rental:deleteProperty',
+    listTenants: 'rental:listTenants',
+    createTenant: 'rental:createTenant',
+    updateTenant: 'rental:updateTenant',
+    deleteTenant: 'rental:deleteTenant',
+    listLeases: 'rental:listLeases',
+    createLease: 'rental:createLease',
+    updateLease: 'rental:updateLease',
+    terminateLease: 'rental:terminateLease',
+    listRentRecords: 'rental:listRentRecords',
+    recordRent: 'rental:recordRent',
+    deleteRentRecord: 'rental:deleteRentRecord',
+    reminders: 'rental:reminders'
+  },
   category: {
     list: 'category:list',
     create: 'category:create',

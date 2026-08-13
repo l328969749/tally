@@ -39,6 +39,40 @@ export function isValidCreditLimit(value: number): boolean {
   return Number.isFinite(value) && value >= 0
 }
 
+export function isValidNonNegative(value: number): boolean {
+  return Number.isFinite(value) && value >= 0
+}
+
+export function isValidAddress(address: string): boolean {
+  const trimmed = address.trim()
+  return trimmed.length > 0 && trimmed.length <= 200
+}
+
+export function isValidPhone(phone: string): boolean {
+  if (!phone.trim()) {
+    return true
+  }
+  return phone.trim().length <= 20
+}
+
+export function isValidIdNumber(idNumber: string): boolean {
+  if (!idNumber.trim()) {
+    return true
+  }
+  return idNumber.trim().length <= 30
+}
+
+export function isValidPayCycle(value: string): boolean {
+  return value === 'monthly' || value === 'quarterly' || value === 'yearly'
+}
+
+export function isValidLeaseDates(startDate: string, endDate: string): boolean {
+  if (!isValidDate(startDate) || !isValidDate(endDate)) {
+    return false
+  }
+  return startDate <= endDate
+}
+
 export function isValidDate(date: string): boolean {
   return /^\d{4}-\d{2}-\d{2}$/.test(date)
 }

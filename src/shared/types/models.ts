@@ -178,3 +178,107 @@ export interface DashboardSummary {
   monthlyTrend: MonthlyTrendItem[]
   expenseByCategory: CategoryExpenseItem[]
 }
+
+export type PayCycle = 'monthly' | 'quarterly' | 'yearly'
+
+export type LeaseStatus = 'active' | 'terminated'
+
+export interface RentalProperty {
+  id: number
+  address: string
+  area: number
+  monthlyRent: number
+  deposit: number
+  note: string | null
+  assetId: number | null
+  createdAt: number
+}
+
+export interface Tenant {
+  id: number
+  name: string
+  phone: string | null
+  idNumber: string | null
+  createdAt: number
+}
+
+export interface Lease {
+  id: number
+  propertyId: number
+  tenantId: number
+  startDate: string
+  endDate: string
+  monthlyRent: number
+  payCycle: PayCycle
+  status: LeaseStatus
+  terminatedAt: string | null
+  note: string | null
+  createdAt: number
+}
+
+export interface LeaseWithMeta extends Lease {
+  propertyAddress: string
+  tenantName: string
+  totalRent: number
+  rentCount: number
+  nextDueDate: string | null
+}
+
+export interface RentRecord {
+  id: number
+  leaseId: number
+  amount: number
+  date: string
+  transactionId: number | null
+  note: string | null
+  createdAt: number
+}
+
+export interface RentRecordWithMeta extends RentRecord {
+  leaseLabel: string
+}
+
+export interface RentalPropertyInput {
+  address: string
+  area: number
+  monthlyRent: number
+  deposit: number
+  note?: string | null
+  assetId?: number | null
+}
+
+export type RentalPropertyUpdateInput = Partial<RentalPropertyInput> & { address?: string }
+
+export interface TenantInput {
+  name: string
+  phone?: string | null
+  idNumber?: string | null
+}
+
+export type TenantUpdateInput = Partial<TenantInput>
+
+export interface LeaseInput {
+  propertyId: number
+  tenantId: number
+  startDate: string
+  endDate: string
+  monthlyRent: number
+  payCycle: PayCycle
+  note?: string | null
+}
+
+export interface RentRecordInput {
+  leaseId: number
+  amount: number
+  date: string
+  accountId: number
+  note?: string | null
+}
+
+export interface RentalReminder {
+  kind: 'lease_expiry' | 'rent_due'
+  leaseId: number
+  leaseLabel: string
+  date: string
+  daysLeft: number
+}

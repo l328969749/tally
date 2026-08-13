@@ -1,6 +1,6 @@
 import type Database from 'better-sqlite3-multiple-ciphers'
 
-export const SCHEMA_VERSION = 2
+export const SCHEMA_VERSION = 3
 
 function getSchemaVersion(db: Database.Database): number {
   const value = db.pragma('user_version', { simple: true })
@@ -91,6 +91,56 @@ function createBaseTables(db: Database.Database): void {
   `)
 }
 
+function createRentalTables(db: Database.Database): void {
+  db.exec(`
+    CREATE TABLE IF NOT EXISTS rental_property (
+      id INTEGER PRIMARY KEY AUTOINCREMENT,
+      address TEXT NOT NULL,
+      area REAL NOT NULL DEFAULT 0,
+      monthly_rent REAL NOT NULL DEFAULT 0,
+      deposit REAL NOT NULL DEFAULT 0,
+      note TEXT,
+      asset_id INTEGER REFERENCES asset(id) ON DELETE SET NULL,
+      created_at INTEGER NOT NULL
+    );
+
+    CREATE TABLE IF NOT EXISTS tenant (
+      id INTEGER PRIMARY KEY AUTOINCREMENT,
+      name TEXT NOT NULL,
+      phone TEXT,
+      id_number TEXT,
+      created_at INTEGER NOT NULL
+    );
+
+    CREATE TABLE IF NOT EXISTS lease (
+      id INTEGER PRIMARY KEY AUTOINCREMENT,
+      property_id INTEGER NOT NULL REFERENCES rental_property(id) ON DELETE CASCADE,
+      tenant_id INTEGER NOT NULL REFERENCES tenant(id),
+      start_date TEXT NOT NULL,
+      end_date TEXT NOT NULL,
+      monthly_rent REAL NOT NULL,
+      pay_cycle TEXT NOT NULL CHECK(pay_cycle IN ('monthly','quarterly','yearly')),
+      status TEXT NOT NULL DEFAULT 'active' CHECK(status IN ('active','terminated')),
+      terminated_at TEXT,
+      note TEXT,
+      created_at INTEGER NOT NULL
+    );
+    CREATE INDEX IF NOT EXISTS idx_lease_property ON lease(property_id);
+    CREATE INDEX IF NOT EXISTS idx_lease_tenant ON lease(tenant_id);
+
+    CREATE TABLE IF NOT EXISTS rent_record (
+      id INTEGER PRIMARY KEY AUTOINCREMENT,
+      lease_id INTEGER NOT NULL REFERENCES lease(id) ON DELETE CASCADE,
+      amount REAL NOT NULL CHECK(amount > 0),
+      date TEXT NOT NULL,
+      transaction_id INTEGER REFERENCES "transaction"(id) ON DELETE SET NULL,
+      note TEXT,
+      created_at INTEGER NOT NULL
+    );
+    CREATE INDEX IF NOT EXISTS idx_rent_record_lease ON rent_record(lease_id);
+  `)
+}
+
 function migrateAccountToV2(db: Database.Database): void {
   const columns = db.prepare('PRAGMA table_info(account)').all() as Array<{ name: string }>
   if (columns.some((column) => column.name === 'card_number')) {
@@ -125,6 +175,7 @@ export function migrateSchema(db: Database.Database): void {
   const current = getSchemaVersion(db)
   if (current === 0) {
     createBaseTables(db)
+    createRentalTables(db)
     db.pragma(`user_version = ${SCHEMA_VERSION}`)
     return
   }
@@ -132,6 +183,7 @@ export function migrateSchema(db: Database.Database): void {
     migrateAccountToV2(db)
   }
   createBaseTables(db)
+  createRentalTables(db)
   db.pragma(`user_version = ${SCHEMA_VERSION}`)
 }
 

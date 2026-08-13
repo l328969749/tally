@@ -41,7 +41,7 @@ function createV1Db(): Database.Database {
   return db
 }
 
-describe('schema v1 → v2 迁移', () => {
+describe('schema v1 → 最新版迁移', () => {
   let db: Database.Database
 
   beforeEach(() => {
@@ -56,7 +56,7 @@ describe('schema v1 → v2 迁移', () => {
     migrateSchema(db)
 
     const version = db.pragma('user_version', { simple: true })
-    expect(version).toBe(2)
+    expect(version).toBe(3)
 
     const row = db.prepare('SELECT * FROM account WHERE name = ?').get('工资卡') as Record<string, unknown>
     expect(row.id).toBe(1)

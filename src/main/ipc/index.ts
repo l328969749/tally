@@ -10,6 +10,7 @@ import { registerAssetHandlers } from './asset.handler'
 import { registerAnalyticsHandlers } from './analytics.handler'
 import { registerBackupExportHandlers } from './backup-export.handler'
 import { registerCreditHandlers } from './credit.handler'
+import { registerRentalHandlers } from './rental.handler'
 
 let ledgerManager: LedgerManager | null = null
 
@@ -36,4 +37,5 @@ export function registerIpcHandlers(): void {
   registerAnalyticsHandlers(ledger)
   registerBackupExportHandlers(ledger)
   registerCreditHandlers(ledger)
+  registerRentalHandlers(ledger)
 }

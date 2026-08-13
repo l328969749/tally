@@ -1,12 +1,13 @@
 <script setup lang="ts">
 import { computed, onMounted, ref } from 'vue'
-import type { AccountBalanceItem, OverviewData } from '@shared/types/models'
+import type { AccountBalanceItem, OverviewData, RentalReminder } from '@shared/types/models'
 import { formatAmount, monthStart, monthEnd } from '@renderer/utils/date'
 import { daysUntilDue, isDueReminder } from '@renderer/utils/credit'
 
 const overview = ref<OverviewData | null>(null)
 const loading = ref(true)
 const balanceItems = ref<AccountBalanceItem[]>([])
+const rentalReminders = ref<RentalReminder[]>([])
 
 onMounted(async () => {
   try {
@@ -15,6 +16,7 @@ onMounted(async () => {
     loading.value = false
   }
   balanceItems.value = await window.api.analytics.accountBalance()
+  rentalReminders.value = await window.api.rental.reminders()
 })
 
 const monthRange = computed(() => `${monthStart()} ~ ${monthEnd()}`)
@@ -64,6 +66,19 @@ const dueReminders = computed(() =>
                 欠款 ¥ {{ formatAmount(Math.abs(item.balance)) }} ·
                 还款日 {{ item.dueDate }} 日 ·
                 {{ daysUntilDue(item.dueDate, today) === 0 ? '今天到期' : `剩 ${daysUntilDue(item.dueDate, today)} 天` }}
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div v-if="rentalReminders.length > 0" class="rental-reminders">
+          <h3>出租提醒</h3>
+          <div class="due-list">
+            <div v-for="item in rentalReminders" :key="`${item.kind}-${item.leaseId}`" class="due-item">
+              <div class="due-name">{{ item.kind === 'lease_expiry' ? '合同到期' : '应收租' }} · {{ item.leaseLabel }}</div>
+              <div class="due-meta">
+                {{ item.date }}
+                {{ item.daysLeft === 0 ? '今天' : `剩 ${item.daysLeft} 天` }}
               </div>
             </div>
           </div>
@@ -166,6 +181,20 @@ const dueReminders = computed(() =>
   margin-bottom: 12px;
   font-size: 15px;
   color: #b88230;
+}
+
+.rental-reminders {
+  background: #eef7ff;
+  border: 1px solid #c3e0f5;
+  border-radius: var(--app-radius);
+  padding: 20px;
+  margin-bottom: 16px;
+}
+
+.rental-reminders h3 {
+  margin-bottom: 12px;
+  font-size: 15px;
+  color: #2f6fb2;
 }
 
 .due-list {

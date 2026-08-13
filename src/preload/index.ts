@@ -23,7 +23,18 @@ import type {
   TransactionWithMeta,
   CategoryExpenseItem,
   TagExpenseItem,
-  AccountBalanceItem
+  AccountBalanceItem,
+  RentalProperty,
+  RentalPropertyInput,
+  RentalPropertyUpdateInput,
+  Tenant,
+  TenantInput,
+  TenantUpdateInput,
+  LeaseWithMeta,
+  LeaseInput,
+  RentRecord,
+  RentRecordInput,
+  RentalReminder
 } from '../shared/types/models'
 import type {
   BackupCreateResult,
@@ -91,6 +102,38 @@ const api = {
       note?: string | null
     }): Promise<OpResult & { expense?: unknown; income?: unknown }> =>
       ipcRenderer.invoke(IpcChannels.credit.repay, data)
+  },
+  rental: {
+    listProperties: (): Promise<RentalProperty[]> => ipcRenderer.invoke(IpcChannels.rental.listProperties),
+    createProperty: (data: RentalPropertyInput): Promise<RentalProperty> =>
+      ipcRenderer.invoke(IpcChannels.rental.createProperty, data),
+    updateProperty: (id: number, data: RentalPropertyUpdateInput): Promise<OpResult> =>
+      ipcRenderer.invoke(IpcChannels.rental.updateProperty, id, data),
+    deleteProperty: (id: number): Promise<OpResult> =>
+      ipcRenderer.invoke(IpcChannels.rental.deleteProperty, id),
+    listTenants: (): Promise<Tenant[]> => ipcRenderer.invoke(IpcChannels.rental.listTenants),
+    createTenant: (data: TenantInput): Promise<Tenant> =>
+      ipcRenderer.invoke(IpcChannels.rental.createTenant, data),
+    updateTenant: (id: number, data: TenantUpdateInput): Promise<OpResult> =>
+      ipcRenderer.invoke(IpcChannels.rental.updateTenant, id, data),
+    deleteTenant: (id: number): Promise<OpResult> =>
+      ipcRenderer.invoke(IpcChannels.rental.deleteTenant, id),
+    listLeases: (): Promise<LeaseWithMeta[]> => ipcRenderer.invoke(IpcChannels.rental.listLeases),
+    createLease: (data: LeaseInput): Promise<LeaseWithMeta> =>
+      ipcRenderer.invoke(IpcChannels.rental.createLease, data),
+    updateLease: (
+      id: number,
+      data: { startDate?: string; endDate?: string; monthlyRent?: number; payCycle?: string; note?: string | null }
+    ): Promise<OpResult> => ipcRenderer.invoke(IpcChannels.rental.updateLease, id, data),
+    terminateLease: (id: number, terminatedAt: string): Promise<OpResult> =>
+      ipcRenderer.invoke(IpcChannels.rental.terminateLease, id, terminatedAt),
+    listRentRecords: (leaseId?: number): Promise<RentRecord[]> =>
+      ipcRenderer.invoke(IpcChannels.rental.listRentRecords, leaseId),
+    recordRent: (data: RentRecordInput): Promise<OpResult & { record?: RentRecord }> =>
+      ipcRenderer.invoke(IpcChannels.rental.recordRent, data),
+    deleteRentRecord: (id: number): Promise<OpResult> =>
+      ipcRenderer.invoke(IpcChannels.rental.deleteRentRecord, id),
+    reminders: (): Promise<RentalReminder[]> => ipcRenderer.invoke(IpcChannels.rental.reminders)
   },
   category: {
     list: (): Promise<Category[]> => ipcRenderer.invoke(IpcChannels.category.list),

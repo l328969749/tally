@@ -38,6 +38,12 @@ const routes: RouteRecordRaw[] = [
     meta: { title: '资产', requiresLedger: true }
   },
   {
+    path: '/rentals',
+    name: 'rentals',
+    component: () => import('@renderer/views/RentalsView.vue'),
+    meta: { title: '出租', requiresLedger: true }
+  },
+  {
     path: '/analytics',
     name: 'analytics',
     component: () => import('@renderer/views/AnalyticsView.vue'),
