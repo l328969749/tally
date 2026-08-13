@@ -20,7 +20,9 @@ const navItems = [
 ]
 
 function navigate(path: string): void {
-  router.push(path)
+  router.push(path).catch(() => {
+    // 忽略重复导航到当前路由的错误
+  })
 }
 </script>
 
