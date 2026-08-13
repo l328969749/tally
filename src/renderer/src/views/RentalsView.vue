@@ -462,6 +462,9 @@ function accountName(id: number): string {
             <el-table-column label="累计租金" width="110" align="right">
               <template #default="{ row }">¥ {{ formatAmount(row.totalRent) }}</template>
             </el-table-column>
+            <el-table-column label="下一应收租日" width="120">
+              <template #default="{ row }">{{ row.nextDueDate ?? '-' }}</template>
+            </el-table-column>
             <el-table-column label="状态" width="80">
               <template #default="{ row }">
                 <el-tag v-if="row.status === 'active'" type="success" size="small">生效中</el-tag>
@@ -500,6 +503,12 @@ function accountName(id: number): string {
             <el-table-column prop="date" label="日期" width="120" />
             <el-table-column label="金额" width="120" align="right">
               <template #default="{ row }">¥ {{ formatAmount(row.amount) }}</template>
+            </el-table-column>
+            <el-table-column label="关联流水" width="100" align="center">
+              <template #default="{ row }">
+                <el-tag v-if="row.transactionId" size="small" type="info">#{{ row.transactionId }}</el-tag>
+                <span v-else>-</span>
+              </template>
             </el-table-column>
             <el-table-column prop="note" label="备注" min-width="120" show-overflow-tooltip />
             <el-table-column label="操作" width="100" align="center">
