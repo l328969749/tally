@@ -33,6 +33,7 @@ let tagEl: HTMLElement | null = null
 let trendEl: HTMLElement | null = null
 let netWorthEl: HTMLElement | null = null
 let balanceEl: HTMLElement | null = null
+let disposed = false
 
 onMounted(async () => {
   pieEl = document.getElementById('pie-chart')
@@ -41,10 +42,14 @@ onMounted(async () => {
   netWorthEl = document.getElementById('networth-chart')
   balanceEl = document.getElementById('balance-chart')
   await loadData()
+  if (disposed) {
+    return
+  }
   window.addEventListener('resize', resizeCharts)
 })
 
 onBeforeUnmount(() => {
+  disposed = true
   window.removeEventListener('resize', resizeCharts)
   pieChart?.dispose()
   tagChart?.dispose()
@@ -80,6 +85,9 @@ async function loadData(): Promise<void> {
     monthlyTrend.value = trend
     netWorthPoints.value = netWorth
     accountBalances.value = balance
+    if (disposed) {
+      return
+    }
     await renderCharts()
   } finally {
     loading.value = false

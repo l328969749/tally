@@ -12,11 +12,14 @@ const rentalReminders = ref<RentalReminder[]>([])
 onMounted(async () => {
   try {
     overview.value = await window.api.analytics.overview()
+    balanceItems.value = await window.api.analytics.accountBalance()
+    rentalReminders.value = await window.api.rental.reminders()
+  } catch {
+    balanceItems.value = []
+    rentalReminders.value = []
   } finally {
     loading.value = false
   }
-  balanceItems.value = await window.api.analytics.accountBalance()
-  rentalReminders.value = await window.api.rental.reminders()
 })
 
 const monthRange = computed(() => `${monthStart()} ~ ${monthEnd()}`)
