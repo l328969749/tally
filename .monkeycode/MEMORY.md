@@ -76,3 +76,12 @@ Entries discovered by the Agent during task execution should follow this format:
   - electron-builder 打包命令：`npx electron-builder --linux AppImage --publish never`，产物 `dist/Tally-0.1.0.AppImage`（`dist/` 与 `out/` 均在 .gitignore）。
   - `asarUnpack` 必须指向 `better-sqlite3-multiple-ciphers`（不是 better-sqlite3），否则原生模块留在 asar 内无法加载，打包产物启动即崩溃；打包后应在 `dist/linux-unpacked/resources/app.asar.unpacked/node_modules/better-sqlite3-multiple-ciphers/prebuilds/` 确认 `.node` 文件解包。
   - 打包产物冒烟测试 `tests/e2e/packaged-smoke.test.ts` 用 `it.skipIf(!existsSync(packagedBinary))`，在无 dist 产物时自动跳过。
+
+[Project Knowledge Summary]
+- Date: 2026-08-15
+- Context: Discovered by Agent while debugging「左侧菜单点击后右侧空白」问题（Electron + Vue 3 tally）
+- Category: Troubleshooting & Debugging
+- Instructions:
+  - 主进程所有 IPC handler（analytics/account/transaction 等）catch 后返回 `{ error: getErrorMessage(error) }` 对象而非抛异常（见 `src/shared/types/ipc-results.ts` 的 `WithError<T>`）。渲染层对返回值必须做 `'error' in result` 判断，不能直接把返回值赋给 ref 或当作成功数据处理，否则账本关闭时 `v-if="overview"` 为真但字段为 undefined，`formatAmount(undefined)` 抛 TypeError 导致整个组件渲染崩溃、右侧空白。
+  - App.vue 关闭账本按钮必须 `await ledgerStore.close()` 后再 `router.push('/welcome')`，不能写成 `ledgerStore.close(); router.push(...)`：路由守卫在 isOpen 仍为 true 时会把 /welcome 重定向回 /dashboard，导致 DashboardView 在账本已关闭时重新挂载并触发上述 IPC 崩溃路径。
+  - E2E 复现「关闭账本后空白」需先切到非 dashboard 页面（如流水）再点关闭账本，否则 duplicate navigation 不会重挂载 DashboardView、无法复现。
