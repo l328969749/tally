@@ -17,7 +17,8 @@ export const useAccountStore = defineStore('account', {
   },
   actions: {
     async fetch(): Promise<void> {
-      this.accounts = await window.api.account.list()
+      const result = await window.api.account.list()
+      this.accounts = 'error' in result ? [] : result
       this.loaded = true
     },
     async create(data: AccountInput): Promise<void> {

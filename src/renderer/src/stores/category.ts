@@ -29,7 +29,8 @@ export const useCategoryStore = defineStore('category', {
   },
   actions: {
     async fetch(): Promise<void> {
-      this.categories = await window.api.category.list()
+      const result = await window.api.category.list()
+      this.categories = 'error' in result ? [] : result
       this.loaded = true
     },
     async create(data: { name: string; type: CategoryType; parentId?: number | null }): Promise<void> {

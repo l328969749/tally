@@ -24,6 +24,11 @@ function navigate(path: string): void {
     // 忽略重复导航到当前路由的错误
   })
 }
+
+async function closeLedger(): Promise<void> {
+  await ledgerStore.close()
+  router.push('/welcome')
+}
 </script>
 
 <template>
@@ -48,7 +53,7 @@ function navigate(path: string): void {
       <div class="app-sidebar-footer">
         <button
           class="nav-item"
-          @click="ledgerStore.close(); router.push('/welcome')"
+          @click="closeLedger"
         >
           <el-icon><component :is="'SwitchButton'" /></el-icon>
           <span>关闭账本</span>

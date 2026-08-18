@@ -11,11 +11,18 @@ const rentalReminders = ref<RentalReminder[]>([])
 
 onMounted(async () => {
   try {
-    overview.value = await window.api.analytics.overview()
-    balanceItems.value = await window.api.analytics.accountBalance()
-    rentalReminders.value = await window.api.rental.reminders()
+    const overviewResult = await window.api.analytics.overview()
+    const balanceResult = await window.api.analytics.accountBalance()
+    overview.value = 'error' in overviewResult ? null : overviewResult
+    balanceItems.value = 'error' in balanceResult ? [] : balanceResult
   } catch {
+    overview.value = null
     balanceItems.value = []
+  }
+  try {
+    const remindersResult = await window.api.rental.reminders()
+    rentalReminders.value = 'error' in remindersResult ? [] : remindersResult
+  } catch {
     rentalReminders.value = []
   } finally {
     loading.value = false

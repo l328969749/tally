@@ -13,7 +13,8 @@ export const useTagStore = defineStore('tag', {
   }),
   actions: {
     async fetch(): Promise<void> {
-      this.tags = await window.api.tag.list()
+      const result = await window.api.tag.list()
+      this.tags = 'error' in result ? [] : result
       this.loaded = true
     },
     async create(name: string): Promise<void> {

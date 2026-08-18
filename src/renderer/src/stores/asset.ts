@@ -34,8 +34,8 @@ export const useAssetStore = defineStore('asset', {
         window.api.asset.list(),
         window.api.asset.listLiabilities()
       ])
-      this.assets = assets
-      this.liabilities = liabilities
+      this.assets = 'error' in assets ? [] : assets
+      this.liabilities = 'error' in liabilities ? [] : liabilities
       this.loaded = true
     },
     async create(data: { name: string; type: AssetType; value: number; unit?: string | null; note?: string | null }): Promise<void> {

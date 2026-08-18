@@ -73,12 +73,12 @@ async function fetchAll(): Promise<void> {
     window.api.asset.list(),
     window.api.account.list()
   ])
-  properties.value = p
-  tenants.value = t
-  leases.value = l
-  rentRecords.value = r
-  assets.value = a
-  accounts.value = acc
+  properties.value = 'error' in p ? [] : p
+  tenants.value = 'error' in t ? [] : t
+  leases.value = 'error' in l ? [] : l
+  rentRecords.value = 'error' in r ? [] : r
+  assets.value = 'error' in a ? [] : a
+  accounts.value = 'error' in acc ? [] : acc
 }
 
 onMounted(fetchAll)

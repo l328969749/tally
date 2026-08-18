@@ -73,6 +73,11 @@ async function load(): Promise<void> {
       pageSize: filter.pageSize
     }
     const result = await window.api.transaction.list(cleanFilter)
+    if ('error' in result) {
+      items.value = []
+      total.value = 0
+      return
+    }
     items.value = result.items
     total.value = result.total
   } finally {
