@@ -80,11 +80,11 @@ async function loadData(): Promise<void> {
       accountBalances.value = []
       return
     }
-    expenseByCategory.value = category
-    expenseByTag.value = tag
-    monthlyTrend.value = trend
-    netWorthPoints.value = netWorth
-    accountBalances.value = balance
+    expenseByCategory.value = category as CategoryExpenseItem[]
+    expenseByTag.value = tag as TagExpenseItem[]
+    monthlyTrend.value = trend as MonthlyTrendItem[]
+    netWorthPoints.value = netWorth as NetWorthPoint[]
+    accountBalances.value = balance as AccountBalanceItem[]
     if (disposed) {
       return
     }

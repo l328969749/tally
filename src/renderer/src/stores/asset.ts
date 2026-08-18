@@ -1,4 +1,5 @@
 import { defineStore } from 'pinia'
+import type { WithError } from '@shared/types/ipc-results'
 import type {
   Asset,
   AssetType,
@@ -53,9 +54,12 @@ export const useAssetStore = defineStore('asset', {
     async addValue(assetId: number, value: number, date: string): Promise<AssetValue> {
       const result = await window.api.asset.addValue(assetId, value, date)
       await this.fetch()
+      if ('error' in result) {
+        throw new Error(result.error)
+      }
       return result
     },
-    listValues(assetId: number): Promise<AssetValue[]> {
+    listValues(assetId: number): Promise<WithError<AssetValue[]>> {
       return window.api.asset.listValues(assetId)
     },
     async createLiability(data: { name: string; totalAmount: number; paidAmount: number; interestRate: number; note?: string | null }): Promise<void> {
