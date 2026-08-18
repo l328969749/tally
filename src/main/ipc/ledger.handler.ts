@@ -48,7 +48,11 @@ export function registerLedgerHandlers(ledgerManager: LedgerManager): void {
   )
 
   ipcMain.handle(IpcChannels.ledger.close, () => {
-    ledgerManager.close()
+    try {
+      ledgerManager.close()
+    } catch (error) {
+      return { error: mapLedgerError(error) }
+    }
     return { ok: true }
   })
 
