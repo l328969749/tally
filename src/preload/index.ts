@@ -76,15 +76,15 @@ const api = {
   transaction: {
     list: (filter: TransactionFilter): Promise<WithError<TransactionListResult>> =>
       ipcRenderer.invoke(IpcChannels.transaction.list, filter),
-    create: (data: TransactionInput): Promise<TransactionWithMeta> =>
+    create: (data: TransactionInput): Promise<WithError<TransactionWithMeta>> =>
       ipcRenderer.invoke(IpcChannels.transaction.create, data),
-    update: (id: number, data: Partial<TransactionInput>): Promise<TransactionWithMeta> =>
+    update: (id: number, data: Partial<TransactionInput>): Promise<WithError<TransactionWithMeta>> =>
       ipcRenderer.invoke(IpcChannels.transaction.update, id, data),
     delete: (id: number): Promise<OpResult> => ipcRenderer.invoke(IpcChannels.transaction.delete, id)
   },
   account: {
     list: (): Promise<WithError<AccountWithBalance[]>> => ipcRenderer.invoke(IpcChannels.account.list),
-    create: (data: AccountInput): Promise<Account> =>
+    create: (data: AccountInput): Promise<WithError<Account>> =>
       ipcRenderer.invoke(IpcChannels.account.create, data),
     update: (id: number, data: AccountUpdateInput): Promise<OpResult> =>
       ipcRenderer.invoke(IpcChannels.account.update, id, data),
@@ -106,14 +106,14 @@ const api = {
   },
   rental: {
     listProperties: (): Promise<WithError<RentalProperty[]>> => ipcRenderer.invoke(IpcChannels.rental.listProperties),
-    createProperty: (data: RentalPropertyInput): Promise<RentalProperty> =>
+    createProperty: (data: RentalPropertyInput): Promise<WithError<RentalProperty>> =>
       ipcRenderer.invoke(IpcChannels.rental.createProperty, data),
     updateProperty: (id: number, data: RentalPropertyUpdateInput): Promise<OpResult> =>
       ipcRenderer.invoke(IpcChannels.rental.updateProperty, id, data),
     deleteProperty: (id: number): Promise<OpResult> =>
       ipcRenderer.invoke(IpcChannels.rental.deleteProperty, id),
     listTenants: (): Promise<WithError<Tenant[]>> => ipcRenderer.invoke(IpcChannels.rental.listTenants),
-    createTenant: (data: TenantInput): Promise<Tenant> =>
+    createTenant: (data: TenantInput): Promise<WithError<Tenant>> =>
       ipcRenderer.invoke(IpcChannels.rental.createTenant, data),
     updateTenant: (id: number, data: TenantUpdateInput): Promise<OpResult> =>
       ipcRenderer.invoke(IpcChannels.rental.updateTenant, id, data),
@@ -138,7 +138,7 @@ const api = {
   },
   category: {
     list: (): Promise<WithError<Category[]>> => ipcRenderer.invoke(IpcChannels.category.list),
-    create: (data: { name: string; type: CategoryType; parentId?: number | null }): Promise<Category> =>
+    create: (data: { name: string; type: CategoryType; parentId?: number | null }): Promise<WithError<Category>> =>
       ipcRenderer.invoke(IpcChannels.category.create, data),
     update: (id: number, data: { name?: string; parentId?: number | null }): Promise<OpResult> =>
       ipcRenderer.invoke(IpcChannels.category.update, id, data),
@@ -146,7 +146,7 @@ const api = {
   },
   tag: {
     list: (): Promise<WithError<Tag[]>> => ipcRenderer.invoke(IpcChannels.tag.list),
-    create: (name: string): Promise<Tag> => ipcRenderer.invoke(IpcChannels.tag.create, name),
+    create: (name: string): Promise<WithError<Tag>> => ipcRenderer.invoke(IpcChannels.tag.create, name),
     update: (id: number, name: string): Promise<OpResult> =>
       ipcRenderer.invoke(IpcChannels.tag.update, id, name),
     delete: (id: number): Promise<OpResult> => ipcRenderer.invoke(IpcChannels.tag.delete, id)
@@ -159,7 +159,7 @@ const api = {
       value: number
       unit?: string | null
       note?: string | null
-    }): Promise<Asset> => ipcRenderer.invoke(IpcChannels.asset.create, data),
+    }): Promise<WithError<Asset>> => ipcRenderer.invoke(IpcChannels.asset.create, data),
     update: (
       id: number,
       data: {
@@ -182,7 +182,7 @@ const api = {
       paidAmount: number
       interestRate: number
       note?: string | null
-    }): Promise<Liability> => ipcRenderer.invoke(IpcChannels.asset.createLiability, data),
+    }): Promise<WithError<Liability>> => ipcRenderer.invoke(IpcChannels.asset.createLiability, data),
     updateLiability: (
       id: number,
       data: {

@@ -154,10 +154,13 @@ async function save(): Promise<void> {
   }
   saving.value = true
   try {
-    if (props.mode === 'edit' && props.transaction) {
-      await window.api.transaction.update(props.transaction.id, payload)
-    } else {
-      await window.api.transaction.create(payload)
+    const result =
+      props.mode === 'edit' && props.transaction
+        ? await window.api.transaction.update(props.transaction.id, payload)
+        : await window.api.transaction.create(payload)
+    if (result && 'error' in result) {
+      ElMessage.error(result.error)
+      return
     }
     ElMessage.success(props.mode === 'edit' ? '流水已更新' : '流水已记录')
     visibleModel.value = false

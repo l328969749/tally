@@ -34,15 +34,24 @@ export const useCategoryStore = defineStore('category', {
       this.loaded = true
     },
     async create(data: { name: string; type: CategoryType; parentId?: number | null }): Promise<void> {
-      await window.api.category.create(data)
+      const result = await window.api.category.create(data)
+      if ('error' in result) {
+        throw new Error(result.error)
+      }
       await this.fetch()
     },
     async update(id: number, data: { name?: string; parentId?: number | null }): Promise<void> {
-      await window.api.category.update(id, data)
+      const result = await window.api.category.update(id, data)
+      if ('error' in result && result.error) {
+        throw new Error(result.error)
+      }
       await this.fetch()
     },
     async remove(id: number): Promise<void> {
-      await window.api.category.delete(id)
+      const result = await window.api.category.delete(id)
+      if ('error' in result && result.error) {
+        throw new Error(result.error)
+      }
       await this.fetch()
     }
   }

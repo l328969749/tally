@@ -40,15 +40,24 @@ export const useAssetStore = defineStore('asset', {
       this.loaded = true
     },
     async create(data: { name: string; type: AssetType; value: number; unit?: string | null; note?: string | null }): Promise<void> {
-      await window.api.asset.create(data)
+      const result = await window.api.asset.create(data)
+      if ('error' in result) {
+        throw new Error(result.error)
+      }
       await this.fetch()
     },
     async update(id: number, data: { name?: string; type?: AssetType; value?: number; unit?: string | null; note?: string | null }): Promise<void> {
-      await window.api.asset.update(id, data)
+      const result = await window.api.asset.update(id, data)
+      if ('error' in result) {
+        throw new Error(result.error)
+      }
       await this.fetch()
     },
     async remove(id: number): Promise<void> {
-      await window.api.asset.delete(id)
+      const result = await window.api.asset.delete(id)
+      if ('error' in result) {
+        throw new Error(result.error)
+      }
       await this.fetch()
     },
     async addValue(assetId: number, value: number, date: string): Promise<AssetValue> {
@@ -63,15 +72,24 @@ export const useAssetStore = defineStore('asset', {
       return window.api.asset.listValues(assetId)
     },
     async createLiability(data: { name: string; totalAmount: number; paidAmount: number; interestRate: number; note?: string | null }): Promise<void> {
-      await window.api.asset.createLiability(data)
+      const result = await window.api.asset.createLiability(data)
+      if ('error' in result) {
+        throw new Error(result.error)
+      }
       await this.fetch()
     },
     async updateLiability(id: number, data: { name?: string; totalAmount?: number; paidAmount?: number; interestRate?: number; note?: string | null }): Promise<void> {
-      await window.api.asset.updateLiability(id, data)
+      const result = await window.api.asset.updateLiability(id, data)
+      if ('error' in result) {
+        throw new Error(result.error)
+      }
       await this.fetch()
     },
     async removeLiability(id: number): Promise<void> {
-      await window.api.asset.deleteLiability(id)
+      const result = await window.api.asset.deleteLiability(id)
+      if ('error' in result) {
+        throw new Error(result.error)
+      }
       await this.fetch()
     }
   }

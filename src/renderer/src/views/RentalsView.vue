@@ -117,10 +117,18 @@ async function saveProperty(): Promise<void> {
   }
   try {
     if (editingPropertyId.value) {
-      await window.api.rental.updateProperty(editingPropertyId.value, payload)
+      const result = await window.api.rental.updateProperty(editingPropertyId.value, payload)
+      if ('error' in result) {
+        ElMessage.error(result.error)
+        return
+      }
       ElMessage.success('出租房已更新')
     } else {
-      await window.api.rental.createProperty(payload)
+      const result = await window.api.rental.createProperty(payload)
+      if ('error' in result) {
+        ElMessage.error(result.error)
+        return
+      }
       ElMessage.success('出租房已登记')
     }
     propertyDialog.value = false
@@ -173,10 +181,18 @@ async function saveTenant(): Promise<void> {
   }
   try {
     if (editingTenantId.value) {
-      await window.api.rental.updateTenant(editingTenantId.value, payload)
+      const result = await window.api.rental.updateTenant(editingTenantId.value, payload)
+      if ('error' in result) {
+        ElMessage.error(result.error)
+        return
+      }
       ElMessage.success('租户已更新')
     } else {
-      await window.api.rental.createTenant(payload)
+      const result = await window.api.rental.createTenant(payload)
+      if ('error' in result) {
+        ElMessage.error(result.error)
+        return
+      }
       ElMessage.success('租户已登记')
     }
     tenantDialog.value = false
