@@ -91,4 +91,12 @@ describe('DashboardView 出租提醒区块', () => {
     expect(wrapper.find('.rental-reminders').exists()).toBe(false)
     wrapper.unmount()
   })
+
+  it('overview 返回 error 时不渲染统计卡片避免崩溃', async () => {
+    api.analytics.overview.mockResolvedValue({ error: 'LEDGER_NOT_OPEN' })
+    const wrapper = await mountView()
+    expect(wrapper.find('.stat-cards').exists()).toBe(false)
+    expect(wrapper.find('.dashboard').exists()).toBe(true)
+    wrapper.unmount()
+  })
 })
