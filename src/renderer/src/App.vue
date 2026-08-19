@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import { computed } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
+import { ElMessage } from 'element-plus'
 import { useLedgerStore } from '@renderer/stores/ledger'
 
 const route = useRoute()
@@ -26,8 +27,12 @@ function navigate(path: string): void {
 }
 
 async function closeLedger(): Promise<void> {
-  await ledgerStore.close()
-  router.push('/welcome')
+  try {
+    await ledgerStore.close()
+    router.push('/welcome')
+  } catch {
+    ElMessage.error('关闭账本失败，请重试')
+  }
 }
 </script>
 
