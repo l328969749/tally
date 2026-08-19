@@ -62,10 +62,10 @@ export const useAssetStore = defineStore('asset', {
     },
     async addValue(assetId: number, value: number, date: string): Promise<AssetValue> {
       const result = await window.api.asset.addValue(assetId, value, date)
-      await this.fetch()
       if ('error' in result) {
         throw new Error(result.error)
       }
+      await this.fetch()
       return result
     },
     listValues(assetId: number): Promise<WithError<AssetValue[]>> {
