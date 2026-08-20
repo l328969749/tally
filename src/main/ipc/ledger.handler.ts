@@ -73,8 +73,12 @@ export function registerLedgerHandlers(ledgerManager: LedgerManager): void {
   })
 
   ipcMain.handle(IpcChannels.ledger.setBackupReminder, (_event: IpcMainInvokeEvent, enabled: boolean) => {
-    ledgerManager.setBackupReminder(enabled)
-    return { ok: true }
+    try {
+      ledgerManager.setBackupReminder(enabled)
+      return { ok: true }
+    } catch (error) {
+      return { error: mapLedgerError(error) }
+    }
   })
 
   ipcMain.handle(IpcChannels.ledger.getBackupReminder, () => {
@@ -88,8 +92,12 @@ export function registerLedgerHandlers(ledgerManager: LedgerManager): void {
   ipcMain.handle(
     IpcChannels.ledger.setAutoOpenLastLedger,
     (_event: IpcMainInvokeEvent, enabled: boolean) => {
-      ledgerManager.setAutoOpenLastLedger(enabled)
-      return { ok: true }
+      try {
+        ledgerManager.setAutoOpenLastLedger(enabled)
+        return { ok: true }
+      } catch (error) {
+        return { error: mapLedgerError(error) }
+      }
     }
   )
 
