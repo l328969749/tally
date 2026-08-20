@@ -141,4 +141,22 @@ describe('RentalsView', () => {
     expect(wrapper.vm.rentDialog).toBe(false)
     wrapper.unmount()
   })
+
+  it('createLease 返回 error 时不误报成功', async () => {
+    api.rental.createLease.mockResolvedValue({ error: 'INVALID_LEASE_DATES' })
+    const wrapper = await mountView()
+    wrapper.vm.openCreateLease()
+    Object.assign(wrapper.vm.leaseForm, {
+      propertyId: 1,
+      tenantId: 1,
+      startDate: '2025-01-01',
+      endDate: '2025-12-31',
+      monthlyRent: 2500,
+      payCycle: 'monthly'
+    })
+    await wrapper.vm.saveLease()
+    expect(api.rental.createLease).toHaveBeenCalled()
+    expect(wrapper.vm.leaseDialog).toBe(true)
+    wrapper.unmount()
+  })
 })

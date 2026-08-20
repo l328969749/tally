@@ -281,10 +281,18 @@ async function saveLease(): Promise<void> {
   }
   try {
     if (editingLeaseId.value) {
-      await window.api.rental.updateLease(editingLeaseId.value, payload)
+      const result = await window.api.rental.updateLease(editingLeaseId.value, payload)
+      if ('error' in result) {
+        ElMessage.error(mapLeaseError(result.error ?? ''))
+        return
+      }
       ElMessage.success('合同已更新')
     } else {
-      await window.api.rental.createLease(payload)
+      const result = await window.api.rental.createLease(payload)
+      if ('error' in result) {
+        ElMessage.error(mapLeaseError(result.error))
+        return
+      }
       ElMessage.success('合同已创建')
     }
     leaseDialog.value = false
@@ -292,6 +300,19 @@ async function saveLease(): Promise<void> {
   } catch (error) {
     ElMessage.error(error instanceof Error ? error.message : '保存失败')
   }
+}
+
+function mapLeaseError(code: string): string {
+  if (code === 'INVALID_LEASE_DATES') {
+    return '合同日期无效'
+  }
+  if (code === 'INVALID_RENT') {
+    return '租金金额无效'
+  }
+  if (code === 'INVALID_PAY_CYCLE') {
+    return '付款周期无效'
+  }
+  return `保存失败：${code}`
 }
 
 async function terminateLease(lease: LeaseWithMeta): Promise<void> {

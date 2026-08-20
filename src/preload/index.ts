@@ -120,7 +120,7 @@ const api = {
     deleteTenant: (id: number): Promise<OpResult> =>
       ipcRenderer.invoke(IpcChannels.rental.deleteTenant, id),
     listLeases: (): Promise<WithError<LeaseWithMeta[]>> => ipcRenderer.invoke(IpcChannels.rental.listLeases),
-    createLease: (data: LeaseInput): Promise<LeaseWithMeta> =>
+    createLease: (data: LeaseInput): Promise<WithError<LeaseWithMeta>> =>
       ipcRenderer.invoke(IpcChannels.rental.createLease, data),
     updateLease: (
       id: number,
