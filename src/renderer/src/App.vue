@@ -29,7 +29,9 @@ function navigate(path: string): void {
 async function closeLedger(): Promise<void> {
   try {
     await ledgerStore.close()
-    router.push('/welcome')
+    router.push('/welcome').catch(() => {
+      // 忽略重复导航错误
+    })
   } catch {
     ElMessage.error('关闭账本失败，请重试')
   }
