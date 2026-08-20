@@ -69,7 +69,9 @@ async function submitCreate(): Promise<void> {
     await ledgerStore.create(path, form.value.password, form.value.name.trim())
     ElMessage.success('账本创建成功')
     dialogVisible.value = false
-    router.push('/dashboard')
+    router.push('/dashboard').catch(() => {
+      // 忽略重复导航错误
+    })
   } catch (error) {
     ElMessage.error(mapError(error))
   }
@@ -92,7 +94,9 @@ async function submitOpen(): Promise<void> {
     await ledgerStore.open(path, form.value.password)
     ElMessage.success('账本打开成功')
     dialogVisible.value = false
-    router.push('/dashboard')
+    router.push('/dashboard').catch(() => {
+      // 忽略重复导航错误
+    })
   } catch (error) {
     ElMessage.error(mapError(error))
   }
