@@ -101,7 +101,7 @@ const api = {
       amount: number
       date: string
       note?: string | null
-    }): Promise<OpResult & { expense?: unknown; income?: unknown }> =>
+    }): Promise<OpResult & { expense?: TransactionWithMeta; income?: TransactionWithMeta }> =>
       ipcRenderer.invoke(IpcChannels.credit.repay, data)
   },
   rental: {
