@@ -95,8 +95,12 @@ async function removeTag(tag: Tag): Promise<void> {
   } catch {
     return
   }
-  await tagStore.remove(tag.id)
-  ElMessage.success('标签已删除')
+  try {
+    await tagStore.remove(tag.id)
+    ElMessage.success('标签已删除')
+  } catch (error) {
+    ElMessage.error(mapTagError(error))
+  }
 }
 
 async function addCategory(): Promise<void> {
@@ -113,7 +117,7 @@ async function addCategory(): Promise<void> {
     Object.assign(newCategory, { name: '', type: 'expense', parentId: null })
     ElMessage.success('分类已创建')
   } catch (error) {
-    ElMessage.error(error instanceof Error ? error.message : '创建失败')
+    ElMessage.error(mapCategoryError(error))
   }
 }
 
@@ -138,7 +142,7 @@ async function saveCategoryEdit(): Promise<void> {
     editingCategory.value = null
     ElMessage.success('分类已更新')
   } catch (error) {
-    ElMessage.error(error instanceof Error ? error.message : '保存失败')
+    ElMessage.error(mapCategoryError(error))
   }
 }
 
@@ -152,13 +156,17 @@ async function removeCategory(category: Category): Promise<void> {
   } catch {
     return
   }
-  const result = await window.api.category.delete(category.id)
-  if ('error' in result) {
-    ElMessage.error(result.error === 'CATEGORY_HAS_TRANSACTIONS' ? '该分类下存在流水，不能删除' : result.error)
-    return
+  try {
+    const result = await window.api.category.delete(category.id)
+    if ('error' in result) {
+      ElMessage.error(mapCategoryError(result.error))
+      return
+    }
+    await categoryStore.fetch()
+    ElMessage.success('分类已删除')
+  } catch (error) {
+    ElMessage.error(mapCategoryError(error))
   }
-  await categoryStore.fetch()
-  ElMessage.success('分类已删除')
 }
 
 async function changePassword(): Promise<void> {
@@ -200,6 +208,17 @@ function mapTagError(error: unknown): string {
   }
   if (code === 'INVALID_NAME') {
     return '标签名称需为 1-30 个字符'
+  }
+  return '操作失败'
+}
+
+function mapCategoryError(error: unknown): string {
+  const code = error instanceof Error ? error.message : String(error)
+  if (code === 'INVALID_NAME') {
+    return '分类名称需为 1-30 个字符'
+  }
+  if (code === 'CATEGORY_HAS_TRANSACTIONS') {
+    return '该分类下存在流水，不能删除'
   }
   return '操作失败'
 }
