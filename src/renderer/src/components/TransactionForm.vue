@@ -6,6 +6,7 @@ import { useAccountStore } from '@renderer/stores/account'
 import { useCategoryStore } from '@renderer/stores/category'
 import { useTagStore } from '@renderer/stores/tag'
 import { today } from '@renderer/utils/date'
+import { mapErrorCode } from '@renderer/utils/error-messages'
 
 const props = defineProps<{
   visible: boolean
@@ -159,7 +160,7 @@ async function save(): Promise<void> {
         ? await window.api.transaction.update(props.transaction.id, payload)
         : await window.api.transaction.create(payload)
     if (result && 'error' in result) {
-      ElMessage.error(result.error)
+      ElMessage.error(mapErrorCode(result.error))
       return
     }
     ElMessage.success(props.mode === 'edit' ? '流水已更新' : '流水已记录')

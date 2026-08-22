@@ -5,6 +5,7 @@ import type { AccountType, AccountWithBalance } from '@shared/types/models'
 import { useAccountStore } from '@renderer/stores/account'
 import { formatAmount } from '@renderer/utils/date'
 import { isDueReminder, maskCardNumber } from '@renderer/utils/credit'
+import { mapErrorCode } from '@renderer/utils/error-messages'
 
 const accountStore = useAccountStore()
 
@@ -139,7 +140,7 @@ async function removeAccount(account: AccountWithBalance): Promise<void> {
     if (result.error === 'ACCOUNT_HAS_TRANSACTIONS') {
       ElMessage.warning('该账户存在关联流水，不能删除，可选择归档')
     } else {
-      ElMessage.error(result.error)
+      ElMessage.error(mapErrorCode(result.error))
     }
     return
   }
@@ -210,7 +211,7 @@ async function submitRepay(): Promise<void> {
     note: repayForm.note.trim() || null
   })
   if ('error' in result) {
-    ElMessage.error(result.error)
+    ElMessage.error(mapErrorCode(result.error))
     return
   }
   ElMessage.success('还款成功')

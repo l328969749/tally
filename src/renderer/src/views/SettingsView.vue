@@ -4,6 +4,7 @@ import { ElMessage, ElMessageBox } from 'element-plus'
 import type { Category, Tag } from '@shared/types/models'
 import { useTagStore } from '@renderer/stores/tag'
 import { useCategoryStore } from '@renderer/stores/category'
+import { mapErrorCode } from '@renderer/utils/error-messages'
 
 const tagStore = useTagStore()
 const categoryStore = useCategoryStore()
@@ -226,7 +227,7 @@ function mapCategoryError(error: unknown): string {
 async function createBackup(): Promise<void> {
   const result = await window.api.backup.create()
   if ('error' in result) {
-    ElMessage.error(result.error)
+    ElMessage.error(mapErrorCode(result.error))
     return
   }
   if (result.canceled) {
@@ -262,7 +263,7 @@ async function restoreBackup(): Promise<void> {
 async function exportCsv(scope: 'transactions' | 'accounts' | 'assets' | 'all'): Promise<void> {
   const result = await window.api.export.toCsv(scope)
   if ('error' in result) {
-    ElMessage.error(result.error)
+    ElMessage.error(mapErrorCode(result.error))
     return
   }
   if (result.canceled) {
@@ -274,7 +275,7 @@ async function exportCsv(scope: 'transactions' | 'accounts' | 'assets' | 'all'):
 async function exportJson(): Promise<void> {
   const result = await window.api.export.toJson()
   if ('error' in result) {
-    ElMessage.error(result.error)
+    ElMessage.error(mapErrorCode(result.error))
     return
   }
   if (result.canceled) {
@@ -286,7 +287,7 @@ async function exportJson(): Promise<void> {
 async function toggleBackupReminder(): Promise<void> {
   const result = await window.api.ledger.setBackupReminder(backupReminder.value)
   if ('error' in result) {
-    ElMessage.error(result.error)
+    ElMessage.error(mapErrorCode(result.error))
     return
   }
   ElMessage.success(backupReminder.value ? '已开启退出前备份提示' : '已关闭退出前备份提示')
@@ -295,7 +296,7 @@ async function toggleBackupReminder(): Promise<void> {
 async function toggleAutoOpenLastLedger(): Promise<void> {
   const result = await window.api.ledger.setAutoOpenLastLedger(autoOpenLastLedger.value)
   if ('error' in result) {
-    ElMessage.error(result.error)
+    ElMessage.error(mapErrorCode(result.error))
     return
   }
   ElMessage.success(autoOpenLastLedger.value ? '已开启启动自动打开' : '已关闭启动自动打开')

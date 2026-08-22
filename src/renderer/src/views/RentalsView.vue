@@ -10,6 +10,7 @@ import type {
   Tenant
 } from '@shared/types/models'
 import { formatAmount } from '@renderer/utils/date'
+import { mapErrorCode } from '@renderer/utils/error-messages'
 
 const activeTab = ref('properties')
 
@@ -119,14 +120,14 @@ async function saveProperty(): Promise<void> {
     if (editingPropertyId.value) {
       const result = await window.api.rental.updateProperty(editingPropertyId.value, payload)
       if ('error' in result) {
-        ElMessage.error(result.error)
+        ElMessage.error(mapErrorCode(result.error))
         return
       }
       ElMessage.success('出租房已更新')
     } else {
       const result = await window.api.rental.createProperty(payload)
       if ('error' in result) {
-        ElMessage.error(result.error)
+        ElMessage.error(mapErrorCode(result.error))
         return
       }
       ElMessage.success('出租房已登记')
@@ -150,7 +151,7 @@ async function removeProperty(property: RentalProperty): Promise<void> {
   }
   const result = await window.api.rental.deleteProperty(property.id)
   if ('error' in result) {
-    ElMessage.error(result.error)
+    ElMessage.error(mapErrorCode(result.error))
     return
   }
   ElMessage.success('已删除')
@@ -183,14 +184,14 @@ async function saveTenant(): Promise<void> {
     if (editingTenantId.value) {
       const result = await window.api.rental.updateTenant(editingTenantId.value, payload)
       if ('error' in result) {
-        ElMessage.error(result.error)
+        ElMessage.error(mapErrorCode(result.error))
         return
       }
       ElMessage.success('租户已更新')
     } else {
       const result = await window.api.rental.createTenant(payload)
       if ('error' in result) {
-        ElMessage.error(result.error)
+        ElMessage.error(mapErrorCode(result.error))
         return
       }
       ElMessage.success('租户已登记')
@@ -217,7 +218,7 @@ async function removeTenant(tenant: Tenant): Promise<void> {
     if (result.error === 'TENANT_HAS_LEASES') {
       ElMessage.warning('该租户存在关联合同，请先终止合同')
     } else {
-      ElMessage.error(result.error)
+      ElMessage.error(mapErrorCode(result.error))
     }
     return
   }
@@ -283,14 +284,14 @@ async function saveLease(): Promise<void> {
     if (editingLeaseId.value) {
       const result = await window.api.rental.updateLease(editingLeaseId.value, payload)
       if ('error' in result) {
-        ElMessage.error(mapLeaseError(result.error ?? ''))
+        ElMessage.error(mapErrorCode(result.error ?? ''))
         return
       }
       ElMessage.success('合同已更新')
     } else {
       const result = await window.api.rental.createLease(payload)
       if ('error' in result) {
-        ElMessage.error(mapLeaseError(result.error))
+        ElMessage.error(mapErrorCode(result.error))
         return
       }
       ElMessage.success('合同已创建')
@@ -300,19 +301,6 @@ async function saveLease(): Promise<void> {
   } catch (error) {
     ElMessage.error(error instanceof Error ? error.message : '保存失败')
   }
-}
-
-function mapLeaseError(code: string): string {
-  if (code === 'INVALID_LEASE_DATES') {
-    return '合同日期无效'
-  }
-  if (code === 'INVALID_RENT') {
-    return '租金金额无效'
-  }
-  if (code === 'INVALID_PAY_CYCLE') {
-    return '付款周期无效'
-  }
-  return `保存失败：${code}`
 }
 
 async function terminateLease(lease: LeaseWithMeta): Promise<void> {
@@ -330,7 +318,7 @@ async function terminateLease(lease: LeaseWithMeta): Promise<void> {
   }
   const result = await window.api.rental.terminateLease(lease.id, new Date().toISOString().slice(0, 10))
   if ('error' in result) {
-    ElMessage.error(result.error)
+    ElMessage.error(mapErrorCode(result.error))
     return
   }
   ElMessage.success('合同已终止')
@@ -373,7 +361,7 @@ async function recordRent(): Promise<void> {
     note: rentForm.note.trim() || null
   })
   if ('error' in result) {
-    ElMessage.error(result.error)
+    ElMessage.error(mapErrorCode(result.error))
     return
   }
   ElMessage.success('收租已记录，已生成收入流水')
@@ -393,7 +381,7 @@ async function removeRentRecord(record: RentRecord): Promise<void> {
   }
   const result = await window.api.rental.deleteRentRecord(record.id)
   if ('error' in result) {
-    ElMessage.error(result.error)
+    ElMessage.error(mapErrorCode(result.error))
     return
   }
   ElMessage.success('已删除')

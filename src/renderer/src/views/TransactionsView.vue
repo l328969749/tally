@@ -6,6 +6,7 @@ import type {
   TransactionWithMeta
 } from '@shared/types/models'
 import TransactionForm from '@renderer/components/TransactionForm.vue'
+import { mapErrorCode } from '@renderer/utils/error-messages'
 import { useAccountStore } from '@renderer/stores/account'
 import { useCategoryStore } from '@renderer/stores/category'
 import { useTagStore } from '@renderer/stores/tag'
@@ -134,7 +135,7 @@ async function removeTransaction(transaction: TransactionWithMeta): Promise<void
   }
   const result = await window.api.transaction.delete(transaction.id)
   if ('error' in result) {
-    ElMessage.error(result.error)
+    ElMessage.error(mapErrorCode(result.error))
     return
   }
   ElMessage.success('已删除')
