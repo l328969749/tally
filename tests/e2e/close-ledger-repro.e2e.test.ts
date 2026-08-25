@@ -75,4 +75,49 @@ describe('关闭账本竞态复现', () => {
     expect(pageErrors).toEqual([])
     await app.close()
   }, 180000)
+
+  it('关闭账本后重新打开账本应正常回到仪表盘', async () => {
+    const ledgerPath = join(mkdtempSync(join(tmpdir(), 'tally-repro-')), 'e2e.ledger')
+    const app = await launchApp(ledgerPath)
+    const page = await app.firstWindow()
+
+    const pageErrors: string[] = []
+    page.on('pageerror', (error) => {
+      pageErrors.push(error.message)
+      console.log('[pageerror]', error.message)
+    })
+
+    await page.waitForSelector('text=新建账本')
+    const autoOpenDialog = page.locator('.el-overlay-dialog', { hasText: '打开账本' })
+    if (await autoOpenDialog.isVisible().catch(() => false)) {
+      await autoOpenDialog.locator('.el-dialog__headerbtn').click()
+    }
+
+    await page.getByRole('button', { name: '新建账本' }).click()
+    await page.locator('input[placeholder="例如：我的家庭账本"]').fill('复现账本')
+    await page.locator('input[placeholder="请输入密码"]').fill('secret-123')
+    await page.locator('input[placeholder="再次输入密码"]').fill('secret-123')
+    await page.getByRole('button', { name: '创建' }).click()
+    await page.waitForSelector('.app-sidebar')
+
+    // 关闭账本
+    await page.locator('.app-sidebar-footer .nav-item', { hasText: '关闭账本' }).first().click()
+    await page.waitForTimeout(1200)
+    expect(page.url().endsWith('#/welcome')).toBe(true)
+
+    // 重新打开账本（密码为空自动走打开路径）
+    await page.locator('.el-overlay-dialog', { hasText: '打开账本' }).waitFor({ state: 'visible' })
+    await page.locator('input[placeholder="请输入密码"]').last().fill('secret-123')
+    await page.getByRole('button', { name: '打开' }).last().click()
+    await page.waitForSelector('.app-sidebar')
+
+    // 应回到仪表盘且非空白
+    expect(page.url().endsWith('#/dashboard')).toBe(true)
+    const html2 = await page.locator('.app-main').innerHTML().catch(() => '')
+    expect(html2.length).toBeGreaterThan(0)
+
+    console.log('[reopen pageerrors]', JSON.stringify(pageErrors))
+    expect(pageErrors).toEqual([])
+    await app.close()
+  }, 180000)
 })
