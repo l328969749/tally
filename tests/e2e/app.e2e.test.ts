@@ -1,36 +1,10 @@
 import { describe, it, expect } from 'vitest'
 import { mkdtempSync } from 'fs'
 import { tmpdir } from 'os'
-import { join, dirname } from 'path'
-import { _electron, type ElectronApplication, type Page } from 'playwright-core'
+import { join } from 'path'
+import type { Page } from 'playwright-core'
+import { launchApp, nav } from './helpers'
 
-const rootDir = dirname(dirname(__dirname))
-
-async function launchApp(ledgerPath: string): Promise<ElectronApplication> {
-  const app = await _electron.launch({
-    executablePath: join(rootDir, 'node_modules/electron/dist/electron'),
-    args: [rootDir, '--no-sandbox', '--disable-gpu'],
-    env: { ...process.env, ELECTRON_DISABLE_SANDBOX: '1' },
-    cwd: rootDir
-  })
-  await app.evaluate(({ dialog }, base) => {
-    let lastSaved: string | null = null
-    dialog.showSaveDialog = async () => {
-      const filePath = `${base}-${Date.now()}-${Math.random().toString(36).slice(2, 8)}.file`
-      lastSaved = filePath
-      return { canceled: false, filePath }
-    }
-    dialog.showOpenDialog = async () => ({
-      canceled: false,
-      filePaths: [lastSaved ?? `${base}-missing.file`]
-    })
-  }, ledgerPath)
-  return app
-}
-
-function nav(page: Page, label: string): Promise<void> {
-  return page.locator('.nav-item', { hasText: label }).first().click()
-}
 
 async function fillPasswordPrompt(page: Page, password: string): Promise<void> {
   const input = page.locator('.el-message-box input[type="password"]').first()

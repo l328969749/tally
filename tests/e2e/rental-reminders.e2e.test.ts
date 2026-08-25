@@ -1,10 +1,10 @@
 import { describe, it } from 'vitest'
 import { mkdtempSync } from 'fs'
 import { tmpdir } from 'os'
-import { join, dirname } from 'path'
+import { join } from 'path'
 import { _electron } from 'playwright-core'
+import { launchApp, nav } from './helpers'
 
-const rootDir = dirname(dirname(__dirname))
 
 function fmt(d: Date): string {
   const p = (n: number) => String(n).padStart(2, '0')
@@ -15,28 +15,6 @@ function addDays(d: Date, n: number): Date {
   const r = new Date(d)
   r.setDate(r.getDate() + n)
   return r
-}
-
-async function launchApp(ledgerPath: string) {
-  const app = await _electron.launch({
-    executablePath: join(rootDir, 'node_modules/electron/dist/electron'),
-    args: [rootDir, '--no-sandbox', '--disable-gpu'],
-    env: { ...process.env, ELECTRON_DISABLE_SANDBOX: '1' },
-    cwd: rootDir
-  })
-  await app.evaluate(({ dialog }, base) => {
-    let lastSaved: string | null = null
-    dialog.showSaveDialog = async () => {
-      const filePath = `${base}-${Date.now()}.file`
-      lastSaved = filePath
-      return { canceled: false, filePath }
-    }
-    dialog.showOpenDialog = async () => ({
-      canceled: false,
-      filePaths: [lastSaved ?? `${base}-missing.file`]
-    })
-  }, ledgerPath)
-  return app
 }
 
 describe('出租提醒 E2E（任务 6）', () => {
