@@ -121,7 +121,7 @@ async function save(): Promise<void> {
     }
     dialogVisible.value = false
   } catch (error) {
-    ElMessage.error(error instanceof Error ? error.message : '保存失败')
+    ElMessage.error(mapErrorCode(error instanceof Error ? error.message : undefined))
   }
 }
 

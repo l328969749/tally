@@ -10,6 +10,7 @@ import type {
   TagExpenseItem
 } from '@shared/types/models'
 import { yearStart, monthLabel, monthStart, monthEnd } from '@renderer/utils/date'
+import { mapErrorCode } from '@renderer/utils/error-messages'
 
 const expenseByCategory = ref<CategoryExpenseItem[]>([])
 const expenseByTag = ref<TagExpenseItem[]>([])
@@ -72,7 +73,7 @@ async function loadData(): Promise<void> {
       (result) => result && typeof result === 'object' && 'error' in result
     )
     if (failed) {
-      ElMessage.error((failed as { error: string }).error)
+      ElMessage.error(mapErrorCode((failed as { error: string }).error))
       expenseByCategory.value = []
       expenseByTag.value = []
       monthlyTrend.value = []

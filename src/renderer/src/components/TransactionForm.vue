@@ -167,7 +167,7 @@ async function save(): Promise<void> {
     visibleModel.value = false
     emit('saved')
   } catch (error) {
-    ElMessage.error(error instanceof Error ? error.message : '保存失败')
+    ElMessage.error(mapErrorCode(error instanceof Error ? error.message : undefined))
   } finally {
     saving.value = false
   }

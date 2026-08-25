@@ -135,7 +135,7 @@ async function saveProperty(): Promise<void> {
     propertyDialog.value = false
     await fetchAll()
   } catch (error) {
-    ElMessage.error(error instanceof Error ? error.message : '保存失败')
+    ElMessage.error(mapErrorCode(error instanceof Error ? error.message : undefined))
   }
 }
 
@@ -199,7 +199,7 @@ async function saveTenant(): Promise<void> {
     tenantDialog.value = false
     await fetchAll()
   } catch (error) {
-    ElMessage.error(error instanceof Error ? error.message : '保存失败')
+    ElMessage.error(mapErrorCode(error instanceof Error ? error.message : undefined))
   }
 }
 
@@ -299,7 +299,7 @@ async function saveLease(): Promise<void> {
     leaseDialog.value = false
     await fetchAll()
   } catch (error) {
-    ElMessage.error(error instanceof Error ? error.message : '保存失败')
+    ElMessage.error(mapErrorCode(error instanceof Error ? error.message : undefined))
   }
 }
 

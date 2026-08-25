@@ -13,7 +13,18 @@ const errorMessages: Record<string, string> = {
   INVALID_RENT: '租金金额无效',
   INVALID_PAY_CYCLE: '付款周期无效',
   INVALID_PROPERTY_VALUE: '房产估值无效',
-  INVALID_TERMINATED_AT: '终止日期无效'
+  INVALID_TERMINATED_AT: '终止日期无效',
+  INVALID_CREDIT_ACCOUNT: '信用卡账户无效',
+  ACCOUNT_NOT_FOUND: '账户不存在',
+  CATEGORY_NOT_FOUND: '分类不存在',
+  TAG_NOT_FOUND: '标签不存在',
+  ASSET_NOT_FOUND: '资产不存在',
+  LIABILITY_NOT_FOUND: '负债不存在',
+  PROPERTY_NOT_FOUND: '出租房不存在',
+  TENANT_NOT_FOUND: '租户不存在',
+  LEASE_NOT_FOUND: '合同不存在',
+  TRANSACTION_NOT_FOUND: '流水不存在',
+  LEDGER_NOT_OPEN: '账本未打开'
 }
 
 export function mapErrorCode(code: string | undefined): string {

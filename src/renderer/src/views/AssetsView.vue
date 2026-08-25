@@ -5,6 +5,7 @@ import type { Asset, AssetType, Liability } from '@shared/types/models'
 import { useAssetStore } from '@renderer/stores/asset'
 import { useAccountStore } from '@renderer/stores/account'
 import { formatAmount } from '@renderer/utils/date'
+import { mapErrorCode } from '@renderer/utils/error-messages'
 
 const assetStore = useAssetStore()
 const accountStore = useAccountStore()
@@ -109,7 +110,7 @@ async function saveAsset(): Promise<void> {
     }
     dialogVisible.value = false
   } catch (error) {
-    ElMessage.error(error instanceof Error ? error.message : '保存失败')
+    ElMessage.error(mapErrorCode(error instanceof Error ? error.message : undefined))
   }
 }
 
@@ -187,7 +188,7 @@ async function saveLiability(): Promise<void> {
     }
     liabilityDialogVisible.value = false
   } catch (error) {
-    ElMessage.error(error instanceof Error ? error.message : '保存失败')
+    ElMessage.error(mapErrorCode(error instanceof Error ? error.message : undefined))
   }
 }
 
